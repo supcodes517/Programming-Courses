@@ -16,7 +16,7 @@ int jumlah(int n) {
         return 0;
     } // ✅ DIPERBAIKI
 
-    // ❌ KESALAHAN 2: Operasi salah - harus perkalian (+), bukan perkalian (*)
+    // ❌ KESALAHAN 2: Operasi salah - harus pertambahan (+), bukan perkalian (*)
     // SEBELUM: return n * jumlah(n - 1);
     // PERBAIKAN:
     return n + jumlah(n - 1); // ✅ DIPERBAIKI
