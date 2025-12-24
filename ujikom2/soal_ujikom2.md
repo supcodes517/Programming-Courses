@@ -365,22 +365,22 @@ Jika mengalami kesulitan teknis:
 
 Pastikan sudah melakukan semua ini: 
 
-- [ ] Clone repository berhasil
-- [ ] Branch baru dengan NIM sudah dibuat
-- [ ] Sudah memilih 1 quiz case
-- [ ] File sudah di-copy dengan nama `jawaban_[NIM].cpp`
-- [ ] Header komentar sudah diisi lengkap (Nama, NIM, Quiz, Tanggal)
-- [ ] Semua kesalahan sudah ditemukan
-- [ ] Semua kesalahan sudah diperbaiki
-- [ ] Setiap perbaikan sudah diberi komentar dengan format yang benar
-- [ ] Ringkasan kesalahan sudah ditambahkan di akhir file
-- [ ] Program berhasil di-compile tanpa error
-- [ ] Program sudah ditest dengan minimal 3 test case
-- [ ] Semua test case berhasil (output sesuai expected)
-- [ ] File sudah di-commit dengan message yang jelas
-- [ ] File sudah di-push ke branch NIM
-- [ ] Sudah verifikasi di GitHub web bahwa file ter-upload
-- [ ] Screenshot bukti submission sudah diambil
+- [x] Clone repository berhasil
+- [x] Branch baru dengan NIM sudah dibuat
+- [x] Sudah memilih 1 quiz case
+- [x] File sudah di-copy dengan nama `jawaban_[NIM].cpp`
+- [x] Header komentar sudah diisi lengkap (Nama, NIM, Quiz, Tanggal)
+- [x] Semua kesalahan sudah ditemukan
+- [x] Semua kesalahan sudah diperbaiki
+- [x] Setiap perbaikan sudah diberi komentar dengan format yang benar
+- [x] Ringkasan kesalahan sudah ditambahkan di akhir file
+- [x] Program berhasil di-compile tanpa error
+- [x] Program sudah ditest dengan minimal 3 test case
+- [x] Semua test case berhasil (output sesuai expected)
+- [x] File sudah di-commit dengan message yang jelas
+- [x] File sudah di-push ke branch NIM
+- [x] Sudah verifikasi di GitHub web bahwa file ter-upload
+- [x] Screenshot bukti submission sudah diambil
 
 ---
 
