@@ -10,43 +10,38 @@ using namespace std;
 
 // Perbaiki fungsi rekursif penjumlahan ini!
 int jumlah(int n) {
-    // Kesalahan 1 : Basis rekursi engga cukup robust karena cuma menangani n == 1.
-    // Kalau validasi input di main() dilepas, n <= 0 dapat menyebabkan rekursi infinity loop.
+    // Kesalahan 1 : Basis rekursi engga cukup robust karena cuma n == 1
+    // Kalau validasi input di main() di hilangkan, n <= 0 bisa bikin rekursi infinity loop
     // Sebelum : if (n == 1) return 1; 
     // Perbaikan :
-    if (n <= 1) {  // Diperbaiki - berhenti saat n 1 atau lebih kecil
+    if (n <= 1) {  // Diperbaiki : berhenti ketika n 1 atau lebih kecil
         return n;
     }
 
     // Kesalahan 2 : Operasi rekursif pakai perkalian, seharusnya penjumlahan.
     // Sebelum : return n * jumlah(n - 1);
     // Perbaikan :
-    return n + jumlah(n - 1);  // Diperbaiki - gunakan penjumlahan
+    return n + jumlah(n - 1);  // Diperbaiki : pake penjumlahan
 }
 
 int main() {
     int angka;
     cout << "Masukkan angka: ";
     cin >> angka;
-
-    if (angka < 1) {
-        cout << "Masukkan bilangan bulat positif minimal 1." << endl;
-        return 0;
-    }
     
-    // Kesalahan 3 : Pemanggilan rekursi dikurangi 1 sehingga hasil kurang satu suku.
+    // Kesalahan 3 : Pemanggilan rekursi dikurangi 1 sehingga hasil kurang satu
     // Sebelum : cout << "Jumlah dari 1 hingga " << angka << " adalah: " << jumlah(angka - 1) << endl;
     // Perbaikan :
-    cout << "Jumlah dari 1 hingga " << angka << " adalah: " << jumlah(angka) << endl;  // Diperbaiki - pemanggilan fungsi sesuai angka input
+    cout << "Jumlah dari 1 hingga " << angka << " adalah: " << jumlah(angka) << endl;  // Diperbaiki : pemanggilan fungsi harus sama dengan angka input
     
     return 0;
 }
 
 // ============================================
 // RINGKASAN KESALAHAN YANG DITEMUKAN :
-// 1. Basis rekursi hanya menangani n == 1 → diperbaiki menjadi n <= 1 agar lebih robust.
-// 2. Operasi rekursif menggunakan perkalian (*) → diperbaiki menjadi penjumlahan (+).
-// 3. Pemanggilan fungsi jumlah(angka - 1) → diperbaiki menjadi jumlah(angka).
+// 1. Basis rekursi hanya ngatasin n == 1 → diganti jadi n <= 1
+// 2. Operasi rekursif pakai perkalian (*) → diganti jadi penjumlahan (+)
+// 3. Pemanggilan fungsi jumlah(angka - 1) → digaanti jadi jumlah(angka)
 // ============================================
 
 
