@@ -1,7 +1,7 @@
 // ============================================
-// NAMA  : [Muhammad Arif Rahman]
+// NAMA  :  [Muhammad Arif Rahman]
 // NIM   :  [2500018001]
-// QUIZ  : [Penjumlahan]
+// QUIZ  :  [Penjumlahan]
 // TANGGAL: [24/12/2025]
 // ============================================
 
