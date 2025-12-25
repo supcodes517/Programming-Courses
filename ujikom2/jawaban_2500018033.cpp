@@ -1,20 +1,32 @@
+// ============================================
+// NAMA  : [Eliana Elys Nur]
+// NIM   : [2500018033]
+// QUIZ  : [Quiz Penjumlahan Rekursif]
+// TANGGAL: [25/12/2025]
+// ============================================
+
 #include <iostream>
 using namespace std;
 
-// Perbaiki fungsi rekursif penjumlahan ini!
 int jumlah(int n) {
-    if (n == 1) {  
-        return 1;
+    if (n == 1) {              
+        return 1;              
     }
-    return n * jumlah(n - 1);  
+    // ? KESALAHAN 1	: Operasi salah - menggunakan perkalian (*)
+    // SEBELUM			: return n * jumlah(n - 1);
+    // PERBAIKAN		:
+    return n + jumlah(n - 1);   // ? DIPERBAIKI - menggunakan penjumlahan (+)
 }
 
 int main() {
     int angka;
-    cout << "Masukkan angka: ";
+    cout << "Masukkan angka:  ";
     cin >> angka;
     
-    cout << "Jumlah dari 1 hingga " << angka << " adalah: " << jumlah(angka - 1) << endl;  
+    // ? KESALAHAN 2: Pemanggilan fungsi salah
+    // SEBELUM: jumlah(angka - 1)
+    // PERBAIKAN:
+    cout << "Jumlah dari 1 hingga " << angka  << " adalah: " << jumlah(angka) << endl;  // ? DIPERBAIKI
     
     return 0;
 }
@@ -70,3 +82,9 @@ Jumlah dari 1 hingga 1 adalah: 1
 
 ---
 */
+
+// ============================================
+// RINGKASAN KESALAHAN YANG DITEMUKAN:
+// 1. Operasi rekursif salah ( * ) ? diperbaiki menjadi ( + )
+// 2. Pemanggilan fungsi salah (angka - 1) ? diperbaiki menjadi (angka)
+// ============================================
