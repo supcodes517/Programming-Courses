@@ -9,17 +9,17 @@
 using namespace std;
 
 int jumlah(int n) {
-    // ? KESALAHAN 1: Base case nya kurang aman (hanya n == 1) diganti <= 1 karena takut ada yang masukin negatif atau nol
+    // ❌ KESALAHAN 1: Base case nya kurang aman (hanya n == 1) diganti <= 1 karena takut ada yang masukin negatif atau nol
     // SEBELUM: if (n == 1) return 1;
     // PERBAIKAN:
-    if (n <= 1) {                 // ? DIPERBAIKI
+    if (n <= 1) {                 // ✅ DIPERBAIKI
         return 1;
     }
 
-    // ? KESALAHAN 2: Operasinya salah (perkalian) jadi * diganti +
+    // ❌ KESALAHAN 2: Operasinya salah (perkalian) jadi * diganti +
     // SEBELUM: return n * jumlah(n - 1);
     // PERBAIKAN:
-    return n + jumlah(n - 1);     // ? DIPERBAIKI
+    return n + jumlah(n - 1);     // ✅ DIPERBAIKI
 }
 
 int main() {
@@ -27,10 +27,10 @@ int main() {
     cout << "Masukkan angka: ";
     cin >> angka;
 
-    // ? KESALAHAN 3: Pemanggilan fungsi salah karena yang ke input ke n itu angka dikurangi 1, contohnya kalau masukin angka 3 malah jadinya 2+1 bukan 3+2+1
+    // ❌ KESALAHAN 3: Pemanggilan fungsi salah karena yang ke input ke n itu angka dikurangi 1, contohnya kalau masukin angka 3 malah jadinya 2+1 bukan 3+2+1
     // SEBELUM: jumlah(angka - 1)
     // PERBAIKAN:
-    cout << "Jumlah dari 1 hingga " << angka << " adalah: " << jumlah(angka) << endl; // ? DIPERBAIKI
+    cout << "Jumlah dari 1 hingga " << angka << " adalah: " << jumlah(angka) << endl; // ✅ DIPERBAIKI
 
     return 0;
 }
