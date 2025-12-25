@@ -1,3 +1,11 @@
+// ============================================// 
+// NAMA      : Alea Aminatussyifa
+// NIM       : [2500018016]
+// QUIZ      : [Penjumlahan]
+// TANGGAL   : [24/12/2025]
+// ============================================//
+
+
 #include <iostream>
 using namespace std;
 
@@ -6,18 +14,29 @@ int jumlah(int n) {
     if (n == 1) {  
         return 1;
     }
-    return n * jumlah(n - 1);  
+// ❌ KESALAHAN 1: return n * jumlah(n - 1) merupakan rekursi faktorial bukan penjumlahan
+// SEBELUM: return n * jumlah(n - 1) merupakan kode yg salah
+// PERBAIKAN: return n + jumlah(n - 1) merupakan kode yg benar
+   return n + jumlah(n - 1); // ✅ DIPERBAIKI
 }
 
 int main() {
     int angka;
     cout << "Masukkan angka: ";
     cin >> angka;
-    
-    cout << "Jumlah dari 1 hingga " << angka << " adalah: " << jumlah(angka - 1) << endl;  
+// ❌ KESALAHAN 2: jumlah(angka - 1) membuat nilai input terakhir tidak dihitung
+// SEBELUM: jumlah(angka - 1) merupakan kode yang salah
+// PERBAIKAN: jumlah(angka) merupakan kode yang benar
+   cout << "Jumlah dari 1 hingga " << angka << " adalah: " << jumlah(angka) << endl;   // ✅ DIPERBAIKI 
     
     return 0;
 }
+
+// ============================================
+// RINGKASAN KESALAHAN YANG DITEMUKAN:
+// 1. return n * jumlah(n - 1) (rekursi faktorial) → diperbaiki menjadi return n + jumlah(n - 1)
+// 2. jumlah(angka - 1) → diperbaiki menjadi jumlah(angka)
+// ============================================
 
 /*
 Quiz 3: Penjumlahan
