@@ -4,7 +4,7 @@ using namespace std;
 // ============================================
 // NAMA   : Hanif Nur Faizi
 // NIM    : 2500018024
-// QUIZ   : Quiz 3 – Penjumlahan Rekursif
+// QUIZ   : Penjumlahan
 // TANGGAL: 25/12/2025
 // ============================================
 
@@ -16,7 +16,7 @@ int jumlah(int n) {
     if (n == 1) {
         return 1;
     }
-    return n + jumlah(n - 1);   // ✅ DIPERBAIKI
+    return n + jumlah(n - 1);   // ✅ SUDAH DIPERBAIKI
 }
 
 int main() {
@@ -28,7 +28,7 @@ int main() {
     // SEBELUM: jumlah(angka - 1)
     // PERBAIKAN:
     cout << "Jumlah dari 1 hingga " << angka
-         << " adalah: " << jumlah(angka) << endl;   // ✅ DIPERBAIKI
+         << " adalah: " << jumlah(angka) << endl;   // ✅ SUDAH DIPERBAIKI
 
     return 0;
 }
