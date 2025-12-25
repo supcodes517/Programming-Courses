@@ -1,12 +1,23 @@
+// ============================================
+// NAMA  : Alfarina Chusnaini Nurlatifah
+// NIM   : 2500018041
+// QUIZ  : Pangkat
+// TANGGAL: 25/12/2025
+// ============================================
 #include <iostream>
 using namespace std;
 
-// Perbaiki fungsi rekursif pangkat ini!
 int pangkat(int basis, int eksponen) {
-    if (eksponen == 1) {  
-        return basis;
+	// Kesalahan 1 : Base case salah dan tidak lengkap
+    // Sebelum : if (eksponen == 1) return basis;
+    // Perbaikan :
+    if (eksponen == 0) {  // DIPERBAIKI
+        return 1; // Semua bilangan pangkat 0 = 1, DIPERBAIKI
     }
-    return basis + pangkat(basis, eksponen - 1);  
+    // Kesalahan 2 : Operasi salah karena menggunakan penjumlahan (+)
+    // Sebelum : return basis + pangkat(basis, eksponen - 1);
+    // Perbaikan :
+    return basis * pangkat(basis, eksponen - 1); // DIPERBAIKI  
 }
 
 int main() {
@@ -16,7 +27,10 @@ int main() {
     cout << "Masukkan eksponen: ";
     cin >> eksponen;
     
-    cout << basis << " ditambah " << eksponen << " = " << pangkat(basis, eksponen) << endl; 
+    // Kesalahan 3 : Output menggunakan kata "ditambah"
+    // Sebelum : cout << basis << " ditambah " << eksponen << " = ...";
+    // Perbaikan :
+    cout << basis << " pangkat " << eksponen << " = " << pangkat(basis, eksponen) << endl; // DIPERBAIKI 
     
     return 0;
 }
@@ -92,7 +106,7 @@ Masukkan eksponen: 4
 3 pangkat 4 = 81
 ```
 
-**Penjelasan:** 3⁴ = 3 × 3 × 3 × 3 = 81
+**Penjelasan:** 34 = 3 × 3 × 3 × 3 = 81
 
 ---
 */
