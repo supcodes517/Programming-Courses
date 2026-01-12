@@ -3,20 +3,6 @@
 
 ---
 
-## 📋 Daftar Isi
-1. [Konsep Dasar File I/O](#1-konsep-dasar-file-io)
-2. [Format File players.txt](#2-format-file-playerstxt)
-3. [Fungsi savePlayers()](#3-fungsi-saveplayers)
-4. [Fungsi loadPlayers()](#4-fungsi-loadplayers)
-5. [Program Lengkap dengan Menu](#5-program-lengkap-dengan-menu)
-6. [Troubleshooting](#6-troubleshooting)
-7. [Best Practices](#7-best-practices)
-8. [Latihan Soal](#8-latihan-soal)
-9. [Perbandingan Format File](#9-perbandingan-format-file)
-10. [Checklist Implementasi](#10-checklist-implementasi)
-
----
-
 ## 1. Konsep Dasar File I/O
 
 ### 🔍 Apa itu File I/O?
