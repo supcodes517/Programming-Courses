@@ -4,7 +4,8 @@
 Ini adalah base code untuk Proyek Akhir Mata Kuliah Dasar Pemrograman.
 Program Tic Tac Toe console-based dengan C++ yang menggunakan array 2D.
 
-## ✨ Fitur Base Code
+## ✨ Fitur Base Code 
+https://github.com/supcodes517/Programming-Courses/blob/main/tictactoe/tictactoe.cpp
 - Array 2D untuk board game (3x3)
 - Mode VS Player (2 pemain)
 - Mode VS Komputer (AI sederhana)
