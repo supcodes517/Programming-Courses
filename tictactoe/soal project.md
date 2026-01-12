@@ -32,16 +32,20 @@ Menang: +3 poin
 Seri: +1 poin
 Kalah: +0 poin
 
-### 3. File Management (25%)
+### 3. File Management (25%) 
 Simpan data player ke players.txt
 Load data player dari file
 Update data setelah permainan
+tutorial: https://github.com/supcodes517/Programming-Courses/blob/main/tictactoe/TUTORIAL_FILE_IO.md 
 
 ### 4. Menu Pemilihan Player (25%)
 Player baru
 Pilih player yang sudah ada
 Lihat leaderboard
 Keluar
+
+## Expected result pada file ini: 
+https://github.com/supcodes517/Programming-Courses/blob/main/tictactoe/EXPECTED%20RESULT.md 
 
 ## PENGUMPULAN
 ### Menggunakan Git Branch
