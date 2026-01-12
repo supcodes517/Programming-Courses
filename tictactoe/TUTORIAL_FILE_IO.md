@@ -902,7 +902,6 @@ Gunakan checklist ini untuk memastikan implementasi Anda lengkap:
 - [ ] Include semua library yang diperlukan (`<fstream>`, `<vector>`, `<string>`)
 - [ ] Definisikan struct `Player` dengan semua field yang diperlukan
 - [ ] Buat konstanta untuk nama file (`const string FILENAME = "players.txt"`)
-- [ ] Tentukan format data (space-separated, CSV, dll)
 
 #### 💾 Fungsi savePlayers()
 - [ ] Buat objek `ofstream`
