@@ -27,7 +27,7 @@ struct Player {
     int score;
 };
 ```
-### 2. Sistem Scoring (15%)
+### 2. Sistem Scoring (25%)
 Menang: +3 poin
 Seri: +1 poin
 Kalah: +0 poin
@@ -37,7 +37,7 @@ Simpan data player ke players.txt
 Load data player dari file
 Update data setelah permainan
 
-### 4. Menu Pemilihan Player (15%)
+### 4. Menu Pemilihan Player (25%)
 Player baru
 Pilih player yang sudah ada
 Lihat leaderboard
