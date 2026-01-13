@@ -1,0 +1,14 @@
+NAMA  : RANGGA
+GAMES : 1
+WINS  : 1
+DRAWS : 0
+LOSS  : 0
+SCORE : 3
+---
+NAMA  : CACA
+GAMES : 1
+WINS  : 1
+DRAWS : 0
+LOSS  : 0
+SCORE : 3
+---
