@@ -1,0 +1,4 @@
+Ridwa 12 3 6 0 3
+Dede 1 1 0 1 0
+Bisri 3 2 1 0 1
+Rezky 1 1 0 1 0
