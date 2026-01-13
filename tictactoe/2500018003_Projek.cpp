@@ -25,7 +25,7 @@ void pauseScreen(){
     cin.get();
 }
 
-void loadPlayers() {
+void player() {
     ifstream file("players.txt");
     if (!file) {
         cout << "\nFile player tidak ditemukan.  Membuat file baru...\n\n";
@@ -40,7 +40,7 @@ void loadPlayers() {
     file.close();
 }
 
-void savePlayers() {
+void simpanPlayer() {
     ofstream file("players.txt");
     for (auto &p : players)
         file << p.name << " " << p.totalGames << " " << p.totalWins << " "
@@ -49,7 +49,7 @@ void savePlayers() {
     cout << "\nData telah disimpan ke file players.txt\n";
 }
 
-void showLeaderboard() {
+void leaderboard() {
     cout << "\n================================";
     cout << "\n        LEADERBOARD";
     cout << "\n  Top 10 Players by Score";
@@ -166,7 +166,7 @@ int computerMove(char board[3][3]){
     return -1;
 }
 
-void playVsComputer(Player &p){
+void lawanKomputer(Player &p){
     while(true){
         system("cls"); 
         cout<<"================================\n";
@@ -237,7 +237,7 @@ void playVsComputer(Player &p){
         cout<<"\n- Losses: "<<p.totalLosses;
         cout<<"\n- Total Score: "<<p.score<<"\n";
 
-        savePlayers();
+        simpanPlayer();
 		pauseScreen();
         char lagi;
         cout<<"\nMain lagi? (y/n): ";
@@ -246,7 +246,7 @@ void playVsComputer(Player &p){
     }
 }
 
-void playVsPlayer(Player &p){
+void lawanPlayer(Player &p){
     while(true){
         system("cls");
         cout<<"=== PILIH MODE PERMAINAN ===\n1. VS Player\n2. VS Komputer\nPilihan Anda: ";
@@ -313,7 +313,7 @@ void playVsPlayer(Player &p){
         cout<<"\n- Losses: "<<p.totalLosses;
         cout<<"\n- Total Score: "<<p.score<<"\n";
 
-        savePlayers();
+        simpanPlayer();
 		pauseScreen();
 
         char lagi;
@@ -323,7 +323,7 @@ void playVsPlayer(Player &p){
     }
 }
 
-void registerPlayer(){
+void tambahPlayer(){
     cout<<"\n=== REGISTRASI PLAYER BARU ===\nMasukkan nama Anda: ";
     string n;cin>>n;
 
@@ -334,12 +334,12 @@ void registerPlayer(){
     cout<<"\nPlayer baru berhasil dibuat!\nSelamat datang, "<<n<<"!\n\nStatistik Anda:";
     cout<<"\n- Total Games: 0\n- Wins: 0\n- Draws: 0\n- Losses: 0\n- Total Score: 0\n";
 
-    savePlayers();
+    simpanPlayer();
 	pauseScreen();
 
 }
 
-bool pickExisting(){
+bool pilih(){
     if(players.empty()){
         cout<<"Belum ada player!\n";
         cin.ignore();cin.get();
@@ -378,23 +378,23 @@ void menu(){
 
         int p;cin>>p;
 
-        if(p==1) registerPlayer();
-        else if(p==2){ if(pickExisting()){
+        if(p==1) tambahPlayer();
+        else if(p==2){ if(pilih()){
                 while(true){
                     system("cls");
                     cout<<"\n=== PILIH MODE PERMAINAN ===\n1. VS Player\n2. VS Komputer\n3. Kembali\nPilihan Anda: ";
                     int m;cin>>m;
-                    if(m==1) playVsPlayer(currentPlayer);
-                    else if(m==2) playVsComputer(currentPlayer);
+                    if(m==1) lawanPlayer(currentPlayer);
+                    else if(m==2) lawanKomputer(currentPlayer);
                     else break;
                 }
             }
         }
-        else if(p==3) showLeaderboard();
+        else if(p==3) leaderboard();
         else if(p==4){
             cout<<"\nTerima kasih telah bermain!\n";
             pauseScreen();
-            savePlayers();
+            simpanPlayer();
             break;
         }
         else{
@@ -408,13 +408,13 @@ void menu(){
                 break;
             }
         }
-        savePlayers();
+        simpanPlayer();
     }
 }
 
 int main(){
     srand(time(0));
-    loadPlayers();
+    player();
     menu();
     return 0;
 }

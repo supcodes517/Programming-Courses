@@ -1,0 +1,4 @@
+Dedsss 10 1 7 2 10
+lintang 2 2 0 0 6
+dedeganteng 1 0 0 1 0
+sahdan 1 1 0 0 3
