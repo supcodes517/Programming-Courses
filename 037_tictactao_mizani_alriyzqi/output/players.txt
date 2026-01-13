@@ -1,0 +1,14 @@
+NAMA  : Mizani
+GAMES : 5
+WINS  : 4
+DRAWS : 1
+LOSS  : 0
+SCORE : 13
+---
+NAMA  : Arya
+GAMES : 1
+WINS  : 0
+DRAWS : 1
+LOSS  : 0
+SCORE : 1
+---
