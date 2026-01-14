@@ -1,3 +1,7 @@
+// NAMA : MIZANI ALRIYZQI
+// NIM : 25000018037
+
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -5,6 +9,9 @@
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
+#include <windows.h>
+#include <thread>
+#include <chrono>
 #include <limits>
 #include <iomanip>
 
@@ -20,6 +27,8 @@ struct Player {
     int totalLosses = 0;
     int score = 0;
 };
+
+
 
 char board[3][3];
 vector<Player> players;
@@ -46,12 +55,51 @@ void printGuide() {
     cout << " 7 | 8 | 9\n\n";
 }
 
+void printTitleCenter(string title[], int lines) {
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+
+    int consoleWidth  = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    int consoleHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+
+    // ===== CENTER VERTIKAL =====
+    int paddingTop = (consoleHeight - lines) / 2;
+    for (int i = 0; i < paddingTop; i++) cout << endl;
+
+    // ===== CENTER HORIZONTAL =====
+    for (int i = 0; i < lines; i++) {
+        int paddingLeft = (consoleWidth - title[i].length()) / 2;
+        if (paddingLeft > 0)
+            cout << string(paddingLeft, ' ');
+        cout << title[i] << endl;
+    }
+}
+
+void setColor(int color) {
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+}
+
 void printBoard() {
     cout << "\n";
     for (int i = 0; i < 3; i++) {
         cout << " ";
         for (int j = 0; j < 3; j++) {
-            cout << board[i][j];
+
+            if (board[i][j] == 'X') {
+                setColor(12);
+                cout << 'X';
+            }
+            else if (board[i][j] == 'O') {
+                setColor(9);
+                cout << 'O';
+            }
+            else {
+                setColor(7);
+                cout << ' ';
+            }
+
+            setColor(7);
+
             if (j < 2) cout << " | ";
         }
         cout << "\n";
@@ -59,6 +107,7 @@ void printBoard() {
     }
     cout << "\n";
 }
+
 
 vector<Player> loadPlayers() {
     vector<Player> data;
@@ -85,7 +134,7 @@ vector<Player> loadPlayers() {
             p.score = stoi(line.substr(line.find(":") + 2));
         else if (line == "---") {
             data.push_back(p);
-            p = Player(); // RESET object untuk player berikutnya
+            p = Player();
         }
     }
 
@@ -146,57 +195,82 @@ bool isDraw() {
     return true;
 }
 
-int selectExistingPlayer(const string& prompt) {
+int selectExistingPlayer(const string& prompt, int lockedIndex = -1) {
     if (players.empty()) {
-        cout << "Belum ada player.\n"; 
-        pause(); 
+        cout << "Belum ada player.\n";
+        pause();
         return -1;
     }
 
-    cout << "\n" << prompt << "\n";
+    while (true) {  // ?? LOOP PENTING
+        system("cls");
+        cout << "\n" << prompt << "\n";
 
-    // Tampilkan daftar player
-    cout << "No | Nama           | Score | Games | W  | D  | L\n";
-    cout << "---|----------------|-------|-------|----|----|---\n";
-    for (int i = 0; i < (int)players.size(); i++) {
-        Player &p = players[i];
-        cout << left
-             << setw(3) << i + 1
-             << "| " << setw(15) << p.nama
-             << "| " << setw(6) << p.score
-             << "| " << setw(6) << p.totalGames
-             << "| " << setw(3) << p.totalWins
-             << "| " << setw(3) << p.totalDraws
-             << "| " << setw(3) << p.totalLosses
-             << "\n";
+        cout << "|Rank | Nama           |  Score  |  Games  |  W  |  D  |  L  |\n";
+        cout << "|-----|----------------|---------|---------|-----|-----|-----|\n";
+
+        for (int i = 0; i < (int)players.size(); i++) {
+            Player &p = players[i];
+
+            if (i == lockedIndex) {
+                setColor(8);
+                cout << "[X]";
+            } else {
+                setColor(7);
+                cout << "[ ]";
+            }
+
+            cout << left
+                 << setw(3) << i + 1
+                 << "| " << setw(30) << p.nama
+                 << "|   " << setw(6) << p.score
+                 << "|   " << setw(6) << p.totalGames
+                 << "|  " << setw(3) << p.totalWins
+                 << "|  " << setw(3) << p.totalDraws
+                 << "|  " << setw(3) << p.totalLosses << "|";
+
+            if (i == lockedIndex) {
+                cout << "    ( SUDAH DIPILIH )";
+                setColor(7);
+            }
+            cout << "\n";
+        }
+        
+        
+
+        cout << "\nPilih player (1-" << players.size() << ") atau 0 untuk kembali: ";
+        int pick;
+        cin >> pick;
+
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Input tidak valid!\n";
+            pause();
+            continue;
+        }
+
+        if (pick == 0)
+            return -1;
+
+        if (pick < 1 || pick > (int)players.size()) {
+            cout << "Pilihan tidak valid!\n";
+            pause();
+            continue;
+        }
+
+        int idx = pick - 1;
+
+        if (idx == lockedIndex) {
+            cout << "? Player ini sudah dipilih! Pilih player lain.\n";
+            pause();
+            continue; 
+        }
+
+        return idx; 
     }
-
-    cout << "\nPilih player (1-" << players.size() << ") atau 0 untuk kembali: ";
-    int pick; cin >> pick;
-
-    if (pick == 0) return -1;
-    if (pick < 1 || pick > (int)players.size()) {
-        cout << "Pilihan tidak valid!\n"; 
-        pause(); 
-        return -1;
-    }
-
-    int idx = pick - 1;
-
-    // Tampilkan statistik player yang dipilih
-    Player &selected = players[idx];
-    cout << "\nPlayer dipilih: " << selected.nama << "\n";
-    cout << "Selamat datang kembali, " << selected.nama << "!\n\n";
-    cout << "Statistik Anda:\n";
-    cout << "- Total Games: " << selected.totalGames << "\n";
-    cout << "- Wins: " << selected.totalWins << "\n";
-    cout << "- Draws: " << selected.totalDraws << "\n";
-    cout << "- Losses: " << selected.totalLosses << "\n";
-    cout << "- Total Score: " << selected.score << "\n\n";
-    pause();
-
-    return idx;
 }
+
 
 
 void playVsPlayer(int idx1, int idx2) {
@@ -213,7 +287,17 @@ void playVsPlayer(int idx1, int idx2) {
         printBoard();
         int pos;
         string currentPlayer = turnX ? players[idx1].nama : players[idx2].nama;
-        cout << "Giliran " << currentPlayer << " (" << (turnX ? "X" : "O") << ") Masukkan posisi (1-9): ";
+        cout << "Giliran " << currentPlayer << " (";
+		if (turnX) {
+    	setColor(12);
+    	cout << "X";
+		} else {
+   		setColor(9);
+    	cout << "O";
+		}
+		setColor(7);
+		cout << ") Masukkan posisi (1-9): ";
+
         cin >> pos;
 
         if (cin.fail()) {
@@ -234,7 +318,7 @@ void playVsPlayer(int idx1, int idx2) {
         board[r][c] = turnX ? 'X' : 'O';
 
         if (checkWin('X')) {
-            cout << "🎉 ANDA MENANG! 🎉\n";
+            cout << "?? ANDA MENANG! ??\n";
             cout << "======================================\n";
             cout << "          HASIL PERTANDINGAN          \n";
             cout << "======================================\n";
@@ -245,7 +329,7 @@ void playVsPlayer(int idx1, int idx2) {
             savePlayers(); showStats(players[idx2]); pause(); return;
         }
         if (checkWin('O')) {
-            cout << "🎉 ANDA MENANG! 🎉\n";
+            cout << "?? ANDA MENANG! ??\n";
             cout << "======================================\n";
             cout << "          HASIL PERTANDINGAN          \n";
             cout << "======================================\n";
@@ -272,15 +356,210 @@ void playVsPlayer(int idx1, int idx2) {
 
 
 
-void computerMove() {
+void computerMoveEasy() {
     int r, c;
-    do { r = rand() % 3; c = rand() % 3; } while (board[r][c] == 'X' || board[r][c] == 'O');
+
+    cout << "Komputer Sedang Memilih Kotak ";
+    cout << "(";
+    setColor(9);
+    cout << "O";
+    setColor(7);
+    cout << ") ";
+    cout.flush();
+
+    for (int i = 0; i < 3; i++) {
+        this_thread::sleep_for(chrono::milliseconds(500));
+        cout << ".";
+        cout.flush();
+    }
+    cout << endl;
+
+    this_thread::sleep_for(chrono::seconds(1));
+
+    do {
+        r = rand() % 3;
+        c = rand() % 3;
+    } while (board[r][c] == 'X' || board[r][c] == 'O');
+
     board[r][c] = 'O';
-    cout << "Komputer memilih posisi: " << (r * 3 + c + 1) << endl;
+
+    cout << "Komputer memilih posisi: " 
+         << (r * 3 + c + 1) << endl;
 }
 
 
-void playVsComputer(int idxPlayer) {
+
+bool findWinningMove(char p, int &r, int &c) {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (board[i][j] == ' ') {
+                board[i][j] = p;
+                if (checkWin(p)) {
+                    board[i][j] = ' ';
+                    r = i; c = j;
+                    return true;
+                }
+                board[i][j] = ' ';
+            }
+        }
+    }
+    return false;
+}
+
+
+void computerMoveMedium() {
+    int r =-1, c = -1;
+
+    cout << "Komputer Sedang Memilih Kotak ";
+    cout << "(";
+    setColor(9);
+    cout << "O";
+    setColor(7);
+    cout << ") ";
+    cout.flush();
+
+    for (int i = 0; i < 3; i++) {
+        this_thread::sleep_for(chrono::milliseconds(500));
+        cout << ".";
+        cout.flush();
+    }
+    cout << endl;
+
+    this_thread::sleep_for(chrono::seconds(1));
+    
+
+    if (findWinningMove('O', r, c)) {
+        board[r][c] = 'O';
+    }
+
+    else if (findWinningMove('X', r, c)) {
+        board[r][c] = 'O';
+    }
+
+    else if (board[1][1] == ' ') {
+        r = 1; c = 1;
+        board[r][c] = 'O';
+    }
+    else {
+        do {
+            r = rand() % 3;
+            c = rand() % 3;
+        } while (board[r][c] != ' ');
+        board[r][c] = 'O';
+    }
+
+
+
+    cout << "Komputer memilih posisi: "
+         << (r * 3 + c + 1) << endl;
+}
+
+
+    int evaluate() {
+    if (checkWin('O')) return +10;
+    if (checkWin('X')) return -10;
+    return 0;
+}
+
+	bool movesLeft() {
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            if (board[i][j] == ' ')
+                return true;
+    return false;
+}
+
+int minimax(bool isMax) {
+    int score = evaluate();
+
+    if (score == 10 || score == -10)
+        return score;
+
+    if (!movesLeft())
+        return 0;
+
+    if (isMax) { 
+        int best = -1000;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == ' ') {
+                    board[i][j] = 'O';
+                    best = max(best, minimax(false));
+                    board[i][j] = ' ';
+                }
+            }
+        }
+        return best;
+    } else { 
+        int best = 1000;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == ' ') {
+                    board[i][j] = 'X';
+                    best = min(best, minimax(true));
+                    board[i][j] = ' ';
+                }
+            }
+        }
+        return best;
+    }
+}
+
+pair<int,int> findBestMove() {
+    int bestVal = -1000;
+    pair<int,int> bestMove = {-1, -1};
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (board[i][j] == ' ') {
+                board[i][j] = 'O';
+                int moveVal = minimax(false);
+                board[i][j] = ' ';
+
+                if (moveVal > bestVal) {
+                    bestMove = {i, j};
+                    bestVal = moveVal;
+                }
+            }
+        }
+    }
+    return bestMove;
+}
+
+void computerMoveHard() {
+    int r, c;
+
+    cout << "Komputer Sedang Memilih Kotak ";
+    cout << "(";
+    setColor(9);
+    cout << "O";
+    setColor(7);
+    cout << ") ";
+    cout.flush();
+
+    for (int i = 0; i < 3; i++) {
+        this_thread::sleep_for(chrono::milliseconds(500));
+        cout << ".";
+        cout.flush();
+    }
+    cout << endl;
+
+    this_thread::sleep_for(chrono::seconds(1));
+    
+    auto move = findBestMove();
+    r = move.first;
+    c = move.second;
+
+    board[r][c] = 'O';
+
+    cout << "Komputer memilih posisi: " 
+         << (r * 3 + c + 1) << endl;
+}
+
+
+
+
+void playVsComputerEasy(int idx1) {
     system("cls");
     cout << "======================================\n";
     cout << "            TIC TAC TOE GAME          \n";
@@ -288,10 +567,17 @@ void playVsComputer(int idxPlayer) {
     resetBoard();
     printGuide();
     printBoard();
+    
 
     while (true) {
         int pos;
-        cout << "Giliran Anda (X) : "; cin >> pos;
+        cout << "Giliran Anda ";
+        cout << "(";
+        setColor(12);
+		cout << "X";  
+		setColor(7);
+		cout << ")";
+		cout << " : "; cin >> pos;
         if (cin.fail()) { cin.clear(); cin.ignore(numeric_limits<streamsize>::max(), '\n'); continue; }
 
         int r = (pos - 1) / 3;
@@ -300,14 +586,14 @@ void playVsComputer(int idxPlayer) {
 
         board[r][c] = 'X'; printBoard();
         if (checkWin('X')) {
-            cout << "🎉 ANDA MENANG! 🎉\n";
+            cout << "?? ANDA MENANG! ??\n";
             cout << "======================================\n";
             cout << "          HASIL PERTANDINGAN          \n";
             cout << "======================================\n";
             cout << "Hasil : MENANG" << endl;
             cout << "Score Yang Di Dapatkan : +3 Poin"<< endl;
-            players[idxPlayer].totalGames++; players[idxPlayer].totalWins++; players[idxPlayer].score += 3;
-            savePlayers(); showStats(players[idxPlayer]); pause(); return;
+            players[idx1].totalGames++; players[idx1].totalWins++; players[idx1].score += 3;
+            savePlayers(); showStats(players[idx1]); pause(); return;
         }
         if (isDraw()) {
             cout << "SERI!\n"; 
@@ -316,20 +602,149 @@ void playVsComputer(int idxPlayer) {
             cout << "======================================\n";
             cout << "Hasil : SERI" << endl;
             cout << "Score Yang Di Dapatkan : +1 Poin"<< endl;
-            players[idxPlayer].totalGames++; players[idxPlayer].totalDraws++; players[idxPlayer].score++; savePlayers(); showStats(players[idxPlayer]); pause(); return;
+            players[idx1].totalGames++; players[idx1].totalDraws++; players[idx1].score++; savePlayers(); showStats(players[idx1]); pause(); return;
         }
 
-        computerMove(); printBoard();
+        computerMoveEasy(); printBoard();
         if (checkWin('O')) {
-            cout << "💻 KOMPUTER MENANG! 💻\n";
+            cout << "?? KOMPUTER MENANG! ??\n";
             cout << "======================================\n";
             cout << "          HASIL PERTANDINGAN          \n";
             cout << "======================================\n";
             cout << "Hasil : KALAH" << endl;
             cout << "Score Yang Di Dapatkan : +0 Poin"<< endl;
-            players[idxPlayer].totalGames++; players[idxPlayer].totalLosses++; savePlayers(); showStats(players[idxPlayer]); pause(); return;
+            players[idx1].totalGames++; players[idx1].totalLosses++; savePlayers(); pause(); return;
+        }
+        
+    }
+    cout << "Game selesai!\n";
+    pause();
+    return;
+    
+}
+
+void playVsComputerMedium(int idx1) {
+    system("cls");
+    cout << "======================================\n";
+    cout << "            TIC TAC TOE GAME          \n";
+    cout << "======================================\n";
+    resetBoard();
+    printGuide();
+    printBoard();
+    
+
+    while (true) {
+        int pos;
+        cout << "Giliran Anda ";
+        cout << "(";
+        setColor(12);
+		cout << "X";  
+		setColor(7);
+		cout << ")";
+		cout << " : "; cin >> pos;
+        if (cin.fail()) { cin.clear(); cin.ignore(numeric_limits<streamsize>::max(), '\n'); continue; }
+
+        int r = (pos - 1) / 3;
+        int c = (pos - 1) % 3;
+        if (pos < 1 || pos > 9 || board[r][c] == 'X' || board[r][c] == 'O') { cout << "Posisi tidak valid!\n"; continue; }
+
+        board[r][c] = 'X'; printBoard();
+        if (checkWin('X')) {
+            cout << "?? ANDA MENANG! ??\n";
+            cout << "======================================\n";
+            cout << "          HASIL PERTANDINGAN          \n";
+            cout << "======================================\n";
+            cout << "Hasil : MENANG" << endl;
+            cout << "Score Yang Di Dapatkan : +3 Poin"<< endl;
+            players[idx1].totalGames++; players[idx1].totalWins++; players[idx1].score += 3;
+            savePlayers(); showStats(players[idx1]); pause(); return;
+        }
+        if (isDraw()) {
+            cout << "SERI!\n"; 
+            cout << "======================================\n";
+            cout << "          HASIL PERTANDINGAN          \n";
+            cout << "======================================\n";
+            cout << "Hasil : SERI" << endl;
+            cout << "Score Yang Di Dapatkan : +1 Poin"<< endl;
+            players[idx1].totalGames++; players[idx1].totalDraws++; players[idx1].score++; savePlayers(); showStats(players[idx1]); pause(); return;
+        }
+
+        computerMoveMedium(); printBoard();
+        if (checkWin('O')) {
+            cout << "?? KOMPUTER MENANG! ??\n";
+            cout << "======================================\n";
+            cout << "          HASIL PERTANDINGAN          \n";
+            cout << "======================================\n";
+            cout << "Hasil : KALAH" << endl;
+            cout << "Score Yang Di Dapatkan : +0 Poin"<< endl;
+            players[idx1].totalGames++; players[idx1].totalLosses++; savePlayers(); pause(); return;
         }
     }
+    cout << "Game selesai!\n";
+    pause();
+    return;
+}
+
+void playVsComputerHard(int idx1) {
+    system("cls");
+    cout << "======================================\n";
+    cout << "            TIC TAC TOE GAME          \n";
+    cout << "======================================\n";
+    resetBoard();
+    printGuide();
+    printBoard();
+    
+
+    while (true) {
+        int pos;
+        cout << "Giliran Anda ";
+        cout << "(";
+        setColor(12);
+		cout << "X";  
+		setColor(7);
+		cout << ")";
+		cout << " : "; cin >> pos;
+        if (cin.fail()) { cin.clear(); cin.ignore(numeric_limits<streamsize>::max(), '\n'); continue; }
+
+        int r = (pos - 1) / 3;
+        int c = (pos - 1) % 3;
+        if (pos < 1 || pos > 9 || board[r][c] == 'X' || board[r][c] == 'O') { cout << "Posisi tidak valid!\n"; continue; }
+
+        board[r][c] = 'X'; printBoard();
+        if (checkWin('X')) {
+            cout << "?? ANDA MENANG! ??\n";
+            cout << "======================================\n";
+            cout << "          HASIL PERTANDINGAN          \n";
+            cout << "======================================\n";
+            cout << "Hasil : MENANG" << endl;
+            cout << "Score Yang Di Dapatkan : +3 Poin"<< endl;
+            players[idx1].totalGames++; players[idx1].totalWins++; players[idx1].score += 3;
+            savePlayers(); showStats(players[idx1]); pause(); return;
+        }
+        if (isDraw()) {
+            cout << "SERI!\n"; 
+            cout << "======================================\n";
+            cout << "          HASIL PERTANDINGAN          \n";
+            cout << "======================================\n";
+            cout << "Hasil : SERI" << endl;
+            cout << "Score Yang Di Dapatkan : +1 Poin"<< endl;
+            players[idx1].totalGames++; players[idx1].totalDraws++; players[idx1].score++; savePlayers(); pause(); return;
+        }
+
+        computerMoveHard(); printBoard();
+        if (checkWin('O')) {
+            cout << "?? KOMPUTER MENANG! ??\n";
+            cout << "======================================\n";
+            cout << "          HASIL PERTANDINGAN          \n";
+            cout << "======================================\n";
+            cout << "Hasil : KALAH" << endl;
+            cout << "Score Yang Di Dapatkan : +0 Poin"<< endl;
+            players[idx1].totalGames++; players[idx1].totalLosses++; savePlayers(); showStats(players[idx1]); pause(); return;
+        }
+    }
+    cout << "Game selesai!\n";
+    pause();
+    return;
 }
 
 
@@ -343,20 +758,20 @@ void leaderboard() {
         return a.score > b.score;
     });
 
-    cout << "Rank | Nama           | Score | Games | W  | D  | L\n";
-    cout << "-----|----------------|-------|-------|----|----|----\n";
+    cout << "Rank | Nama           |  Score  |  Games  |  W  |  D  |  L  |\n";
+    cout << "-----|----------------|---------|---------|-----|-----|-----|\n";
 
     int limit = min(10, (int)players.size());
     for (int i = 0; i < limit; i++) {
         Player &p = players[i];
         cout << "  " << i+1
              << "  | " << p.nama
-             << string(15 - p.nama.length(), ' ')
-             << "|  " << p.score
-             << "    |  " << p.totalGames
-             << "    | " << p.totalWins
-             << "  | " << p.totalDraws
-             << "  | " << p.totalLosses
+             << string(30 - p.nama.length(), ' ')
+             << "|    " << p.score
+             << "    |    " << p.totalGames
+             << "    |  " << p.totalWins
+             << "  |  " << p.totalDraws
+             << "  |  " << p.totalLosses << "  |"
              << "\n";
     }
     cout << "\n================================\n";
@@ -365,6 +780,217 @@ void leaderboard() {
     cin.get();
 }
 
+void menuDifficulty(int currentPlayerIndex) {
+    int choice3;
+
+    while (true) {
+        system("cls");
+        cout << "========================\n";
+        cout << "    Pilih Difficulty    \n";
+        cout << "========================\n";
+        cout << "1. Easy\n";
+        cout << "2. Medium\n";
+        cout << "3. Hard\n";
+        cout << "4. Back To Menu\n";
+        cout << "Pilihan Anda : ";
+        cin >> choice3;
+
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Input tidak valid!\n";
+            pause();
+            continue;
+        }
+
+        if (choice3 == 1) {
+        	string title[] = {
+        "¦¦¦¦¦¦¦¦+ ¦¦+  ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦+   ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦¦+  ¦¦¦¦¦¦¦+",
+        "+--¦¦+--+ ¦¦¦ ¦¦+----+    +--¦¦+--+ ¦¦+--¦¦+ ¦¦+----+    +--¦¦+--+ ¦¦+---¦¦+ ¦¦+----+",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦  ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+     ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦¦¦¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦¦¦¦¦+  ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦+--¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+--+  ",
+        "   ¦¦¦    ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    ¦¦¦  ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    +¦¦¦¦¦¦++ ¦¦¦¦¦¦¦+",
+        "   +-+    +-+  +-----+       +-+    +-+  +-+  +-----+       +-+     +-----+  +------+"
+    };
+
+    for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+    system("cls");
+            playVsComputerEasy(currentPlayerIndex);
+    for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+    system("cls");
+            break;
+        }
+        else if (choice3 == 2) {
+        	string title[] = {
+        "¦¦¦¦¦¦¦¦+ ¦¦+  ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦+   ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦¦+  ¦¦¦¦¦¦¦+",
+        "+--¦¦+--+ ¦¦¦ ¦¦+----+    +--¦¦+--+ ¦¦+--¦¦+ ¦¦+----+    +--¦¦+--+ ¦¦+---¦¦+ ¦¦+----+",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦  ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+     ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦¦¦¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦¦¦¦¦+  ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦+--¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+--+  ",
+        "   ¦¦¦    ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    ¦¦¦  ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    +¦¦¦¦¦¦++ ¦¦¦¦¦¦¦+",
+        "   +-+    +-+  +-----+       +-+    +-+  +-+  +-----+       +-+     +-----+  +------+"
+    };
+
+    for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+    system("cls");
+            playVsComputerMedium(currentPlayerIndex);
+            for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+    system("cls");
+            break;
+        }
+        else if (choice3 == 3) {
+        	string title[] = {
+        "¦¦¦¦¦¦¦¦+ ¦¦+  ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦+   ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦¦+  ¦¦¦¦¦¦¦+",
+        "+--¦¦+--+ ¦¦¦ ¦¦+----+    +--¦¦+--+ ¦¦+--¦¦+ ¦¦+----+    +--¦¦+--+ ¦¦+---¦¦+ ¦¦+----+",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦  ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+     ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦¦¦¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦¦¦¦¦+  ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦+--¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+--+  ",
+        "   ¦¦¦    ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    ¦¦¦  ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    +¦¦¦¦¦¦++ ¦¦¦¦¦¦¦+",
+        "   +-+    +-+  +-----+       +-+    +-+  +-+  +-----+       +-+     +-----+  +------+"
+    };
+
+    for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+    system("cls");
+            playVsComputerHard(currentPlayerIndex);
+            for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+    system("cls");
+            break;
+        }
+        else if (choice3 == 4) {
+        	string title[] = {
+        "¦¦¦¦¦¦¦¦+ ¦¦+  ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦+   ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦¦+  ¦¦¦¦¦¦¦+",
+        "+--¦¦+--+ ¦¦¦ ¦¦+----+    +--¦¦+--+ ¦¦+--¦¦+ ¦¦+----+    +--¦¦+--+ ¦¦+---¦¦+ ¦¦+----+",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦  ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+     ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦¦¦¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦¦¦¦¦+  ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦+--¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+--+  ",
+        "   ¦¦¦    ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    ¦¦¦  ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    +¦¦¦¦¦¦++ ¦¦¦¦¦¦¦+",
+        "   +-+    +-+  +-----+       +-+    +-+  +-+  +-----+       +-+     +-----+  +------+"
+    };
+
+    for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+    system("cls");
+            break;
+        }
+        else {
+            cout << "Pilihan tidak valid!\n";
+        }
+        pause();
+        
+    }
+}
 
 void menu() {
     int choice;
@@ -381,7 +1007,37 @@ void menu() {
 
         switch(choice) {
             case 1: {
-    cout << "\n=== REGISTRASI PLAYER BARU ===\n";
+            	string title[] = {
+        "¦¦¦¦¦¦¦¦+ ¦¦+  ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦+   ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦¦+  ¦¦¦¦¦¦¦+",
+        "+--¦¦+--+ ¦¦¦ ¦¦+----+    +--¦¦+--+ ¦¦+--¦¦+ ¦¦+----+    +--¦¦+--+ ¦¦+---¦¦+ ¦¦+----+",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦  ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+     ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦¦¦¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦¦¦¦¦+  ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦+--¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+--+  ",
+        "   ¦¦¦    ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    ¦¦¦  ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    +¦¦¦¦¦¦++ ¦¦¦¦¦¦¦+",
+        "   +-+    +-+  +-----+       +-+    +-+  +-+  +-----+       +-+     +-----+  +------+"
+    };
+
+    for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+    system("cls");
+    cout << "\n==============================\n";
+    cout << "\n    REGISTRASI PLAYER BARU    \n";
+    cout << "\n==============================\n";
     Player p; 
     cout << "Masukkan nama Anda: "; cin >> p.nama;
     players.push_back(p);
@@ -391,25 +1047,32 @@ void menu() {
     cout << "Selamat datang, " << p.nama << "!\n";
     showStats(players[currentPlayerIndex]); pause();
 
-    // Langsung pilih mode setelah registrasi
     int choice2;
     while (true) {
         system("cls");
-        cout << "===== PILIH MODE =====\n";
+        cout << "======================\n";
+        cout << "      PILIH MODE      \n";
+        cout << "======================\n";
         cout << "1. Player vs Player\n";
         cout << "2. Player vs Computer\n";
         cout << "3. Kembali ke Menu Utama\n";
         cout << "Pilihan Anda : "; cin >> choice2;
 
         if (choice2 == 1) {
-            int idx2 = selectExistingPlayer("=== Pilih Player 2 ===");
+            int idx2 = selectExistingPlayer(
+			"=================\n"
+			"    Player 2\n"
+			"================="
+			);
+
+    setColor(7);
             if (idx2 == -1 || idx2 == currentPlayerIndex) { 
                 cout << "Player tidak valid!\n"; pause(); continue; 
             }
             playVsPlayer(currentPlayerIndex, idx2); 
             break;
         } else if (choice2 == 2) {
-            playVsComputer(currentPlayerIndex); 
+        	menuDifficulty(currentPlayerIndex);
             break;
         } else if (choice2 == 3) break;
         else { cout << "Pilihan Tidak Valid!\n"; pause(); }
@@ -419,43 +1082,257 @@ void menu() {
 }
 
 case 2: {
-    int idx1 = selectExistingPlayer("=== Pilih Player 1 ===");
+	string title[] = {
+        "¦¦¦¦¦¦¦¦+ ¦¦+  ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦+   ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦¦+  ¦¦¦¦¦¦¦+",
+        "+--¦¦+--+ ¦¦¦ ¦¦+----+    +--¦¦+--+ ¦¦+--¦¦+ ¦¦+----+    +--¦¦+--+ ¦¦+---¦¦+ ¦¦+----+",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦  ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+     ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦¦¦¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦¦¦¦¦+  ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦+--¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+--+  ",
+        "   ¦¦¦    ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    ¦¦¦  ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    +¦¦¦¦¦¦++ ¦¦¦¦¦¦¦+",
+        "   +-+    +-+  +-----+       +-+    +-+  +-+  +-----+       +-+     +-----+  +------+"
+    };
+
+    for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+    system("cls");
+    int idx1 = selectExistingPlayer(
+			"=================\n"
+			"    Player 1\n"
+			"=================");
+
+
+    setColor(7);
     if (idx1 == -1) break;
 
     int choice2;
     while (true) {
         system("cls");
-        cout << "===== PILIH MODE =====\n";
+        cout << "======================\n";
+        cout << "      PILIH MODE      \n";
+        cout << "======================\n";
         cout << "1. Player1 Vs Player2\n";
         cout << "2. Player1 Vs Computer\n";
         cout << "3. Back To Menu\n";
         cout << "Pilihan Anda : ";cin >> choice2;
         if (choice2 == 1) {
-            int idx2 = selectExistingPlayer("=== Pilih Player 2 ===");
+        	string title[] = {
+        "¦¦¦¦¦¦¦¦+ ¦¦+  ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦+   ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦¦+  ¦¦¦¦¦¦¦+",
+        "+--¦¦+--+ ¦¦¦ ¦¦+----+    +--¦¦+--+ ¦¦+--¦¦+ ¦¦+----+    +--¦¦+--+ ¦¦+---¦¦+ ¦¦+----+",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦  ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+     ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦¦¦¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦¦¦¦¦+  ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦+--¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+--+  ",
+        "   ¦¦¦    ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    ¦¦¦  ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    +¦¦¦¦¦¦++ ¦¦¦¦¦¦¦+",
+        "   +-+    +-+  +-----+       +-+    +-+  +-+  +-----+       +-+     +-----+  +------+"
+    };
+
+    for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+    system("cls");
+            int idx2 = selectExistingPlayer("=== Pilih Player 2 ===", idx1);
             if (idx2 == -1 || idx2 == idx1) { cout << "Player tidak valid!\n"; pause(); continue; }
             playVsPlayer(idx1, idx2);
             break;
         } else if (choice2 == 2) {
-            playVsComputer(idx1);
-            break;
+        	string title[] = {
+        "¦¦¦¦¦¦¦¦+ ¦¦+  ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦+   ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦¦+  ¦¦¦¦¦¦¦+",
+        "+--¦¦+--+ ¦¦¦ ¦¦+----+    +--¦¦+--+ ¦¦+--¦¦+ ¦¦+----+    +--¦¦+--+ ¦¦+---¦¦+ ¦¦+----+",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦  ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+     ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦¦¦¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦¦¦¦¦+  ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦+--¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+--+  ",
+        "   ¦¦¦    ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    ¦¦¦  ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    +¦¦¦¦¦¦++ ¦¦¦¦¦¦¦+",
+        "   +-+    +-+  +-----+       +-+    +-+  +-+  +-----+       +-+     +-----+  +------+"
+    };
+
+    for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+    system("cls");
+        	menuDifficulty(currentPlayerIndex);
         } else if (choice2 == 3) {
+        	string title[] = {
+        "¦¦¦¦¦¦¦¦+ ¦¦+  ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦+   ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦¦+  ¦¦¦¦¦¦¦+",
+        "+--¦¦+--+ ¦¦¦ ¦¦+----+    +--¦¦+--+ ¦¦+--¦¦+ ¦¦+----+    +--¦¦+--+ ¦¦+---¦¦+ ¦¦+----+",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦  ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+     ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦¦¦¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦¦¦¦¦+  ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦+--¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+--+  ",
+        "   ¦¦¦    ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    ¦¦¦  ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    +¦¦¦¦¦¦++ ¦¦¦¦¦¦¦+",
+        "   +-+    +-+  +-----+       +-+    +-+  +-+  +-----+       +-+     +-----+  +------+"
+    };
+
+    for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+    system("cls");
             break;
         } else {
             cout << "Pilihan Tidak Valid!\n";
+            pause();
+            return;
         }
     }
     break;
 }
-            case 3: leaderboard(); break;
-            case 4: cout << "Terima kasih telah bermain!\n"; return;
+            case 3: {
+            	string title[] = {
+        "¦¦¦¦¦¦¦¦+ ¦¦+  ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦+   ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦¦+  ¦¦¦¦¦¦¦+",
+        "+--¦¦+--+ ¦¦¦ ¦¦+----+    +--¦¦+--+ ¦¦+--¦¦+ ¦¦+----+    +--¦¦+--+ ¦¦+---¦¦+ ¦¦+----+",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦  ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+     ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦¦¦¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦¦¦¦¦+  ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦+--¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+--+  ",
+        "   ¦¦¦    ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    ¦¦¦  ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    +¦¦¦¦¦¦++ ¦¦¦¦¦¦¦+",
+        "   +-+    +-+  +-----+       +-+    +-+  +-+  +-----+       +-+     +-----+  +------+"
+    };
+
+    for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+    system("cls");
+			 leaderboard(); break;}
+            case 4: {
+				string title[] = {
+        "¦¦¦¦¦¦¦¦+ ¦¦+  ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦+   ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦¦+  ¦¦¦¦¦¦¦+",
+        "+--¦¦+--+ ¦¦¦ ¦¦+----+    +--¦¦+--+ ¦¦+--¦¦+ ¦¦+----+    +--¦¦+--+ ¦¦+---¦¦+ ¦¦+----+",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦  ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+     ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦¦¦¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦¦¦¦¦+  ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦+--¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+--+  ",
+        "   ¦¦¦    ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    ¦¦¦  ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    +¦¦¦¦¦¦++ ¦¦¦¦¦¦¦+",
+        "   +-+    +-+  +-----+       +-+    +-+  +-+  +-----+       +-+     +-----+  +------+"
+    };
+
+    for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+    system("cls");
+    
+			cout << "Terima kasih telah bermain!\n"; return;}
             default: cout << "Pilihan tidak valid!\n"; pause(); break;
         }
     }
 }
 
+
+
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+
+    string title[] = {
+        "¦¦¦¦¦¦¦¦+ ¦¦+  ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦+   ¦¦¦¦¦¦+    ¦¦¦¦¦¦¦¦+  ¦¦¦¦¦¦+  ¦¦¦¦¦¦¦+",
+        "+--¦¦+--+ ¦¦¦ ¦¦+----+    +--¦¦+--+ ¦¦+--¦¦+ ¦¦+----+    +--¦¦+--+ ¦¦+---¦¦+ ¦¦+----+",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦  ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+     ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦¦¦¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦¦¦¦¦+  ",
+        "   ¦¦¦    ¦¦¦ ¦¦¦            ¦¦¦    ¦¦+--¦¦¦ ¦¦¦            ¦¦¦    ¦¦¦   ¦¦¦ ¦¦+--+  ",
+        "   ¦¦¦    ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    ¦¦¦  ¦¦¦ +¦¦¦¦¦¦+       ¦¦¦    +¦¦¦¦¦¦++ ¦¦¦¦¦¦¦+",
+        "   +-+    +-+  +-----+       +-+    +-+  +-+  +-----+       +-+     +-----+  +------+"
+    };
+
+    for (int loop = 0; loop < 3; loop++) {
+        system("cls");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+        printTitleCenter(title, 7);
+        Sleep(300);
+    }
+
+    cout << "\n\n                       Loading ";
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
+    for (int i = 0; i <= 65; i++) {
+        cout << char(219);
+        Sleep(30);
+    }
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    Sleep(500);
+
     srand(time(0));
     players = loadPlayers();
     menu();
+
     return 0;
 }
