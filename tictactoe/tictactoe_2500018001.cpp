@@ -259,9 +259,6 @@ int pilihPlayer2(Player dataPlayer[], int &jumlah, int p1) {
 
     indexPlayerSelected -= 1;
 
-    cout << "\n" << dataPlayer[indexPlayerSelected].nama << " Akan Menjadi Player 2\n" << endl;
-    pressEnter();
-
     cout << endl;
     return indexPlayerSelected;
 }
@@ -418,6 +415,8 @@ int pilihMode(int jumlah) {
         }
         cin.clear();
     }
+
+    // cin.ignore();
 
     cout << "\nMode VS " << (modeSelected == 1 ? "Player" : "Komputer") << " Dipilih!\n" << endl;
 
@@ -750,14 +749,18 @@ int main() {
                     cout << "--- Pilih Lawan (Player 2) ---\n" << endl;
                     int selectedPlayer2 = pilihPlayer2(dataPlayer, jumlahPlayer, selectedPlayer1);
 
-                    if (selectedPlayer2 == -1 || selectedPlayer2 == selectedPlayer1) {
-                        if (selectedPlayer2 == selectedPlayer1) {
-                            cout << "Kesalahan: Player tidak bisa melawan diri sendiri!\n" << endl;
-                            pressEnter();
-                        }
+                    if (selectedPlayer2 == -1) {
                         break;
                     }
 
+                    if (selectedPlayer2 == selectedPlayer1) {
+                        cout << "Kesalahan: Player tidak bisa melawan diri sendiri!\n" << endl;
+                        pressEnter();
+                        break;
+                    }
+                    
+                    cout << dataPlayer[selectedPlayer2].nama << " Akan Menjadi Player 2\n" << endl;
+                    pressEnter();
                     clearScreen();
                     gameplayPVP(dataPlayer, selectedPlayer1, selectedPlayer2, jumlahPlayer);
                 } else {
@@ -778,4 +781,5 @@ int main() {
     } while(pilihMenu != 4);
 
     return 0;
+
 }
