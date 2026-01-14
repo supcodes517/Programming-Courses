@@ -1,14 +1,28 @@
 NAMA  : Mizani
-GAMES : 5
-WINS  : 4
-DRAWS : 1
-LOSS  : 0
-SCORE : 13
+GAMES : 3
+WINS  : 2
+DRAWS : 0
+LOSS  : 1
+SCORE : 80
 ---
 NAMA  : Arya
-GAMES : 1
-WINS  : 0
-DRAWS : 1
+GAMES : 2
+WINS  : 2
+DRAWS : 0
 LOSS  : 0
-SCORE : 1
+SCORE : 80
+---
+NAMA  : ARIF
+GAMES : 2
+WINS  : 2
+DRAWS : 0
+LOSS  : 0
+SCORE : 90
+---
+NAMA  : Lea
+GAMES : 2
+WINS  : 2
+DRAWS : 0
+LOSS  : 0
+SCORE : 20
 ---
