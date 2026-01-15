@@ -1,0 +1,3 @@
+Ipit 3 3 0 0 9
+Elys 1 0 0 1 0
+Fachrul 0 0 0 0 0
