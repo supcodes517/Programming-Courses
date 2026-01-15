@@ -1,0 +1,295 @@
+// NAMA : NOVALINO DHEZA YONANSYAH
+// NIM : 25000018020
+
+
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cstdlib>
+#include <ctime>
+#include <limits>
+#include <fstream>
+
+using namespace std;
+
+
+struct Player {
+    string name;
+    int games;
+    int wins;
+    int draws;
+    int losses;
+    int score;
+
+    Player() {
+        games = wins = draws = losses = score = 0;
+    }
+};
+
+
+vector<Player> players;
+char board[9];
+
+
+void saveToFile() {
+    ofstream file("player.txt");
+    for (int i = 0; i < players.size(); i++) {
+        file << players[i].name << endl;
+        file << players[i].games << " "
+             << players[i].wins << " "
+             << players[i].draws << " "
+             << players[i].losses << " "
+             << players[i].score << endl;
+    }
+    file.close();
+    cout << "?? Data saved to player.txt\n";
+}
+
+
+void resetBoard() {
+    for (int i = 0; i < 9; i++)
+        board[i] = '1' + i;
+}
+
+void showGuide() {
+    cout << "\n=== POSITION GUIDE ===\n";
+    cout << " 1 | 2 | 3\n";
+    cout << "---+---+---\n";
+    cout << " 4 | 5 | 6\n";
+    cout << "---+---+---\n";
+    cout << " 7 | 8 | 9\n\n";
+}
+
+void showBoard() {
+    cout << "\n";
+    cout << " " << board[0] << " | " << board[1] << " | " << board[2] << "\n";
+    cout << "---+---+---\n";
+    cout << " " << board[3] << " | " << board[4] << " | " << board[5] << "\n";
+    cout << "---+---+---\n";
+    cout << " " << board[6] << " | " << board[7] << " | " << board[8] << "\n\n";
+}
+
+bool checkWin(char m) {
+    int w[8][3] = {
+        {0,1,2},{3,4,5},{6,7,8},
+        {0,3,6},{1,4,7},{2,5,8},
+        {0,4,8},{2,4,6}
+    };
+
+    for (int i = 0; i < 8; i++) {
+        if (board[w[i][0]] == m &&
+            board[w[i][1]] == m &&
+            board[w[i][2]] == m)
+            return true;
+    }
+    return false;
+}
+
+bool boardFull() {
+    for (int i = 0; i < 9; i++)
+        if (board[i] != 'X' && board[i] != 'O')
+            return false;
+    return true;
+}
+
+
+void registerPlayer() {
+    Player p;
+    cout << "Enter player name: ";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    getline(cin, p.name);
+    players.push_back(p);
+    saveToFile();
+}
+
+int selectPlayer() {
+    if (players.empty()) {
+        cout << "? No player available!\n";
+        return -1;
+    }
+
+    for (int i = 0; i < players.size(); i++)
+        cout << i + 1 << ". " << players[i].name << endl;
+
+    int c;
+    cout << "Choose player: ";
+    cin >> c;
+
+    if (c < 1 || c > players.size()) {
+        cout << "? Invalid input!\n";
+        return -1;
+    }
+    return c - 1;
+}
+
+void showStats(Player &p) {
+    cout << "\n=== PLAYER STATS ===\n";
+    cout << "Name   : " << p.name << endl;
+    cout << "Games  : " << p.games << endl;
+    cout << "Wins   : " << p.wins << endl;
+    cout << "Draws  : " << p.draws << endl;
+    cout << "Losses : " << p.losses << endl;
+    cout << "Score  : " << p.score << endl;
+}
+
+
+void leaderboard() {
+    vector<Player> temp = players;
+
+    for (int i = 0; i < temp.size() - 1; i++) {
+        for (int j = i + 1; j < temp.size(); j++) {
+            if (temp[j].score > temp[i].score) {
+                Player t = temp[i];
+                temp[i] = temp[j];
+                temp[j] = t;
+            }
+        }
+    }
+
+    cout << "\n=== LEADERBOARD (TOP 10) ===\n";
+    for (int i = 0; i < temp.size() && i < 10; i++)
+        cout << i + 1 << ". " << temp[i].name
+             << " | Score: " << temp[i].score << endl;
+}
+
+
+void vsComputer(Player &p) {
+    resetBoard();
+    showGuide();
+
+    while (true) {
+        showBoard();
+        int m;
+        cout << p.name << " (X) choose: ";
+        cin >> m;
+
+        if (m < 1 || m > 9 || board[m-1] == 'X' || board[m-1] == 'O') {
+            cout << "? Invalid move!\n";
+            continue;
+        }
+
+        board[m-1] = 'X';
+
+        if (checkWin('X')) {
+            showBoard();
+            cout << "?? YOU WIN!\n";
+            p.wins++; p.score += 10;
+            break;
+        }
+
+        if (boardFull()) {
+            showBoard();
+            cout << "?? DRAW!\n";
+            p.draws++; p.score += 5;
+            break;
+        }
+
+        cout << "?? Computer is thinking...\n";
+        int c;
+        do { c = rand() % 9; }
+        while (board[c] == 'X' || board[c] == 'O');
+
+        board[c] = 'O';
+
+        if (checkWin('O')) {
+            showBoard();
+            cout << "?? YOU LOSE!\n";
+            p.losses++;
+            break;
+        }
+    }
+
+    p.games++;
+    showStats(p);
+    saveToFile();
+}
+
+void vsPlayer(Player &p1, Player &p2) {
+    resetBoard();
+    showGuide();
+    int turn = 0;
+
+    while (true) {
+        showBoard();
+        Player &cp = (turn % 2 == 0) ? p1 : p2;
+        char mark = (turn % 2 == 0) ? 'X' : 'O';
+
+        int m;
+        cout << cp.name << " (" << mark << ") choose: ";
+        cin >> m;
+
+        if (m < 1 || m > 9 || board[m-1] == 'X' || board[m-1] == 'O') {
+            cout << "? Invalid move!\n";
+            continue;
+        }
+
+        board[m-1] = mark;
+
+        if (checkWin(mark)) {
+            showBoard();
+            cout << "?? " << cp.name << " WINS!\n";
+            cp.wins++; cp.score += 10;
+            if (turn % 2 == 0) p2.losses++;
+            else p1.losses++;
+            break;
+        }
+
+        if (boardFull()) {
+            showBoard();
+            cout << "?? DRAW GAME!\n";
+            p1.draws++; p2.draws++;
+            p1.score += 5; p2.score += 5;
+            break;
+        }
+        turn++;
+    }
+
+    p1.games++; p2.games++;
+    showStats(p1);
+    showStats(p2);
+    saveToFile();
+}
+
+
+int main() {
+    srand(time(0));
+    int menu;
+
+    do {
+        cout << "\n=== TIC TAC TOE MENU ===\n";
+        cout << "1. Register Player\n";
+        cout << "2. Play Game\n";
+        cout << "3. Leaderboard\n";
+        cout << "4. Exit\n";
+        cout << "Choose menu: ";
+        cin >> menu;
+
+        if (menu == 1) registerPlayer();
+
+        else if (menu == 2) {
+            int p1 = selectPlayer();
+            if (p1 == -1) continue;
+
+            cout << "1. VS Player\n2. VS Computer\nChoose mode: ";
+            int mode;
+            cin >> mode;
+
+            if (mode == 1) {
+                int p2 = selectPlayer();
+                if (p2 == -1 || p1 == p2) continue;
+                vsPlayer(players[p1], players[p2]);
+            }
+            else if (mode == 2) {
+                vsComputer(players[p1]);
+            }
+        }
+        else if (menu == 3) leaderboard();
+
+        else if (menu == 4)
+            cout << "?? Thank you for playing Tic Tac Toe!\n";
+
+    } while (menu != 4);
+
+    return 0;
+}
