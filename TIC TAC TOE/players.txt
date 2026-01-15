@@ -1,0 +1,14 @@
+li 4 3 1 0 10
+li 3 2 1 0 7
+Budi 4 1 2 1 5
+li 2 1 1 0 4
+budi 1 1 0 0 3
+li 1 1 0 0 3
+Kiinan 1 0 1 0 1
+Budi 0 0 0 0 0
+Kudil 0 0 0 0 0
+Budi 0 0 0 0 0
+Lian 0 0 0 0 0
+Eli 0 0 0 0 0
+Manoj 0 0 0 0 0
+Fuji 0 0 0 0 0
