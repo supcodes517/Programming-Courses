@@ -323,10 +323,8 @@ int selectExistingPlayer(const string& prompt, int lockedIndex = -1) {
              << "-|-" << string(wD, '-')
              << "-|-" << string(wL, '-') << "-|\n";
 
-             short startY = 0;
 CONSOLE_SCREEN_BUFFER_INFO csbi;
 GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-startY = csbi.dwCursorPosition.Y;
 
 
         for (int i = 0; i < (int)players.size(); i++) {
@@ -446,7 +444,7 @@ void playVsPlayer(int idx1, int idx2) {
         board[r][c] = turnX ? 'X' : 'O';
 
         if (checkWin('X')) {
-            cout << "?? ANDA MENANG! ??\n";
+            cout << "🎉 " << players[idx1].nama << " MENANG! 🎉\n";
             cout << "======================================\n";
             cout << "          HASIL PERTANDINGAN          \n";
             cout << "======================================\n";
@@ -467,12 +465,12 @@ return;
 
         }
         if (checkWin('O')) {
-            cout << "?? ANDA MENANG! ??\n";
+            cout << "🎉 " << players[idx2].nama << " MENANG! 🎉\n";
             cout << "======================================\n";
             cout << "          HASIL PERTANDINGAN          \n";
             cout << "======================================\n";
             cout << "Hasil : MENANG" << endl;
-            cout << "Score Yang Di Dapatkan : +3 Poin"<< endl;
+            cout << "Score Yang Di Dapfatkan : +3 Poin"<< endl;
             players[idx2].totalGames++;
 players[idx2].totalWins++;
 players[idx2].score += 3;
@@ -710,6 +708,13 @@ void computerMoveHard() {
 
 
 void showResult(int idx, string hasil, int poin) {
+    if (hasil == "MENANG") {
+        cout << "🎉" << players[idx].nama << " MENANG! 🎉\n";
+    } else if(hasil == "KALAH") {
+        cout << "💻 KOMPUTER MENANG! 💻\n";
+    } else {
+        cout << "SERI !";
+    }
     cout << "\n======================================\n";
     cout << "          HASIL PERTANDINGAN          \n";
     cout << "======================================\n";
