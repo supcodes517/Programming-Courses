@@ -1,0 +1,8 @@
+Noval
+1 1 0 0 10
+Razya
+1 1 0 0 10
+Andi
+1 0 0 1 0
+Fathir
+0 0 0 0 0
