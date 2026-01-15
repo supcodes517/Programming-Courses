@@ -256,7 +256,7 @@ int main() {
     int menu;
 
     do {
-        cout << "\n=== MENU TIC TAC TOE ===\n";
+        cout << "\n=== TIC TAC TOE GAME ===\n";
         cout << "1. Registrasi Player Baru\n";
         cout << "2. Main Game\n";
         cout << "3. Leaderboard\n";
