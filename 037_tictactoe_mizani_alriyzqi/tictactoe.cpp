@@ -37,10 +37,10 @@ struct Player {
 
 string getRankLabel(int rank) {
     switch (rank) {
-        case 1: return "<<< CHAMPION >>>";
-        case 2: return "<<  ELITE   >>";
-        case 3: return "<   PRO    >";
-        default: return "    ROOKIE   ";
+        case 1: return "🥇";
+        case 2: return "🥈";
+        case 3: return "🥉";
+        default: return " NONE ";
     }
 }
 
@@ -100,56 +100,150 @@ void printTitleCenter(string title[], int lines) {
     }
 }
 
-void loadingScreen() {
-    system("cls");
-
-    string title[] = {
-        "                               ███████████████",
-        "      █ TIC TAC TOE █",
-        "                               ███████████████"
-    };
-
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-int consoleWidth  = csbi.dwSize.X;
-int consoleHeight = csbi.dwSize.Y;
-
-
-    int lines = sizeof(title) / sizeof(title[0]);
-    int barWidth = 40;
-    int totalHeight = lines + 2 + 1; 
-
-    int paddingTop = (consoleHeight - totalHeight) / 2;
-    for(int i = 0; i < paddingTop; i++) cout << "\n";
-
-    for(int i = 0; i < lines; i++) {
-        int paddingLeft = (consoleWidth - title[i].length()) / 2;
-        if(paddingLeft > 0) cout << string(paddingLeft, ' ');
-        setColor(14);
-        cout << title[i] << endl;
-    }
-
-    cout << "\n"; 
-
-
-    int barPaddingLeft = (consoleWidth - barWidth - 6) / 2;
-    for(int i = 0; i <= barWidth; i++) {
-        cout << string(barPaddingLeft, ' ') << "[";
-        setColor(11);
-        for(int j = 0; j < barWidth; j++) {
-            if(j < i) cout << "=";
-            else cout << " ";
-        }
-        setColor(7);
-        cout << "] " << (i * 100 / barWidth) << "%\r";
-        cout.flush();
-        Sleep(30);
-    }
-
-    cout << "\n\n";
-    setColor(7);
+void gotoXY(int x, int y){
+    COORD c;
+    c.X = x;
+    c.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), c);
 }
 
+void loadingScreen() {
+    string bigWords[3][5] = {
+        {
+            "████████╗ ██╗  ██████╗",
+            "╚══██╔══╝ ██║ ██╔════╝",
+            "   ██║    ██║ ██║     ",
+            "   ██║    ██║ ██║     ",
+            "   ██║    ██║ ╚██████╗"
+        },
+        {
+            "████████╗ █████╗   ██████╗",
+            "╚══██╔══╝██╔══██╗ ██╔════╝",
+            "   ██║   ███████║ ██║     ",
+            "   ██║   ██╔══██║ ██║     ",
+            "   ██║   ██║  ██║ ╚██████╗"
+        },
+        {
+            "████████╗ ██████╗ ███████╗",
+            "╚══██╔══╝██╔═══██╗██╔════╝",
+            "   ██║   ██║   ██║█████╗  ",
+            "   ██║   ██║   ██║██╔══╝  ",
+            "   ██║   ╚██████╔╝███████╗"
+        }
+    };
+
+    string loadingText[2][3] = {
+    {   // LOADING ASSET
+        "======================",
+        "     LOADING ASSET    ",
+        "======================"
+    },
+    {   // LOADING TAMPILAN
+        "======================",
+        "   LOADING TAMPILAN   ",
+        "======================"
+    }
+};
+
+
+    int fadeIn[]  = {8, 7, 15, 14};   // gelap -> terang
+    int fadeOut[] = {14, 15, 7, 8};   // terang -> gelap
+
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    int w = csbi.dwSize.X;
+    int h = csbi.dwSize.Y;
+
+    int artHeight = 5;
+    int artWidth = 28;
+
+    system("cls");
+
+    int startY = (h - artHeight) / 2;
+    int startX = (w - artWidth) / 2;
+
+    for(int k = 0; k < 3; k++) {
+
+        // ===== FADE IN =====
+        for(int c = 0; c < 4; c++) {
+            setColor(fadeIn[c]);
+            for(int i = 0; i < artHeight; i++) {
+                gotoXY(startX, startY + i);
+                cout << bigWords[k][i];
+            }
+            Sleep(120);
+        }
+
+        Sleep(300);
+
+        // ===== FADE OUT =====
+        for(int c = 0; c < 4; c++) {
+            setColor(fadeOut[c]);
+            for(int i = 0; i < artHeight; i++) {
+                gotoXY(startX, startY + i);
+                cout << bigWords[k][i];
+            }
+            Sleep(120);
+        }
+
+        // ===== CLEAR ART AREA (BENAR-BENAR HILANG) =====
+        setColor(7);
+        for(int i = 0; i < artHeight; i++) {
+            gotoXY(startX, startY + i);
+            cout << string(artWidth, ' ');
+        }
+
+        Sleep(250); // jeda sebelum kata berikutnya
+    }
+
+    int textW = 22;
+int textH = 3;
+
+int textX = (w - textW) / 2;
+int textY = h/2 - 3;
+
+int barWidth = 40;
+int barX = (w - barWidth - 6)/2;
+int barY = textY + 4;
+
+for(int i=0;i<=barWidth;i++){
+
+    int percent = i*100/barWidth;
+    int mode = (percent < 50) ? 0 : 1;
+
+    // tampilkan tulisan
+    setColor(7);
+    for(int r=0;r<3;r++){
+        gotoXY(textX, textY+r);
+        cout << loadingText[mode][r];
+    }
+
+    // progress bar
+    gotoXY(barX, barY);
+    cout << "[";
+
+    setColor(10);
+    for(int j=0;j<barWidth;j++){
+        if(j<i) cout<<char(219);
+        else cout<<" ";
+    }
+
+    setColor(7);
+    cout << "] " << percent << "|";
+
+    Sleep(40);
+}
+
+
+    
+    system("cls");
+}
+
+
+
+
+
+    
 void printBoard() {
     cout << "\n";
     for (int i = 0; i < 3; i++) {
@@ -180,11 +274,19 @@ void printBoard() {
 }
 
 
+void mainLagi() {
+    char again;
+cout << "Main lagi? (Y/N): ";
+cin >> again;
+if(toupper(again)!='Y') return;
+
+}
+
 vector<Player> loadPlayers() {
     vector<Player> data;
     ifstream file(FILENAME);
 
-    if (!file.is_open())
+    if (!file.is_open())   
         return data;
 
     Player p;
@@ -226,6 +328,8 @@ void savePlayers() {
         file << "SCORE : " << p.score << "\n";
         file << "---\n";
     }
+        cout << "File Player Tdak Di Temukan!";
+
 }
 
 
@@ -295,6 +399,8 @@ int selectExistingPlayer(const string& prompt, int lockedIndex = -1) {
             wL     = max(wL,     (int)to_string(p.totalLosses).length());
         }
 
+        
+
         cout << "+------+-" << string(wNama, '-')
              << "-+-" << string(wScore, '-')
              << "-+-" << string(wGames, '-')
@@ -329,6 +435,7 @@ GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
 
         for (int i = 0; i < (int)players.size(); i++) {
             Player &p = players[i];
+            
 
             if (i == lockedIndex) {
                 setColor(8);
@@ -337,20 +444,31 @@ GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
                 setColor(7);
                 cout << "|[ ]";
             }
+        
 
-cout << left
+if (i == lockedIndex) {
+    setColor(8);
+    string open = "\033[09m";
+    string close = "\033[0m";
+    cout << open << left
      << setw(3) << i + 1 << "| "
      << setw(wNama)  << p.nama << " | "
      << setw(wScore) << p.score << " | "
      << setw(wGames) << p.totalGames << " | "
      << setw(wW)     << p.totalWins << " | "
      << setw(wD)     << p.totalDraws << " | "
-     << setw(wL)     << p.totalLosses << " |";
-
-if (i == lockedIndex) {
-    setColor(8);
+     << setw(wL)     << p.totalLosses << " |" << close;
     cout << " ( SUDAH DIPILIH )";
     setColor(7);
+} else {
+    cout << left
+     << setw(3) << i + 1 << "| "
+     << setw(wNama)  << p.nama << " | "
+     << setw(wScore) << p.score << " | "
+     << setw(wGames) << p.totalGames << " | "
+     << setw(wW)     << p.totalWins << " | "
+     << setw(wD)     << p.totalDraws << " | "
+     << setw(wL)     << p.totalLosses << " |" ;
 }
 
 cout << "\n";
@@ -387,7 +505,7 @@ cout << "\n";
         int idx = pick - 1;
 
         if (idx == lockedIndex) {
-            cout << "? Player ini sudah dipilih! Pilih player lain.\n";
+            cout << "🎮 Player ini sudah dipilih! Pilih player lain.\n";
             pause();
             continue;
         }
@@ -460,7 +578,8 @@ players[idx2].totalLosses++;
 savePlayers();
 showStats(players[idx1]);
 showStats(players[idx2]);
-pause();
+        mainLagi();
+
 return;
 
         }
@@ -472,17 +591,18 @@ return;
             cout << "Hasil : MENANG" << endl;
             cout << "Score Yang Di Dapfatkan : +3 Poin"<< endl;
             players[idx2].totalGames++;
-players[idx2].totalWins++;
-players[idx2].score += 3;
+            players[idx2].totalWins++;
+            players[idx2].score += 3;
 
-players[idx1].totalGames++;
-players[idx1].totalLosses++;
+            players[idx1].totalGames++;
+            players[idx1].totalLosses++;
 
-savePlayers();
-showStats(players[idx1]);
-showStats(players[idx2]);
-pause();
-return;
+            savePlayers();
+            showStats(players[idx1]);
+            showStats(players[idx2]);
+            mainLagi();
+
+            return;
 
         }
         if (isDraw()) {
@@ -494,7 +614,8 @@ return;
             cout << "Score Yang Di Dapatkan : +1 Poin"<< endl;
             players[idx1].totalGames++; players[idx1].totalDraws++; players[idx1].score++;
             players[idx2].totalGames++; players[idx2].totalDraws++; players[idx2].score++;
-            savePlayers(); showStats(players[idx1]); showStats(players[idx2]); pause(); return;
+        mainLagi();
+            savePlayers(); showStats(players[idx1]); showStats(players[idx2]); ; return;
         }
 
         turnX = !turnX;
@@ -709,7 +830,7 @@ void computerMoveHard() {
 
 void showResult(int idx, string hasil, int poin) {
     if (hasil == "MENANG") {
-        cout << "🎉" << players[idx].nama << " MENANG! 🎉\n";
+        cout << "🎉 " << players[idx].nama << " MENANG! 🎉\n";
     } else if(hasil == "KALAH") {
         cout << "💻 KOMPUTER MENANG! 💻\n";
     } else {
@@ -733,7 +854,7 @@ void showResult(int idx, string hasil, int poin) {
     showStats(players[idx]);
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    pause();
+    mainLagi();
 ;
 }
 
@@ -916,6 +1037,13 @@ void menu() {
         cout << "4. Keluar\n";
         cout << "Pilihan Anda: "; cin >> choice;
 
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Input tidak valid!\n";
+            continue;
+        }
+
         switch(choice) {
             case 1: {
     loadingScreen();
@@ -991,7 +1119,10 @@ void menu() {
         if (choice2 == 1) {
             loadingScreen();
     system("cls");
-            int idx2 = selectExistingPlayer("=== Pilih Player 2 ===", idx1);
+            int idx2 = selectExistingPlayer(
+            "=================\n"
+            "    Player 2\n"
+            "=================", idx1);
             if (idx2 == -1 || idx2 == idx1) { cout << "Player tidak valid!\n"; pause(); continue; }
             playVsPlayer(idx1, idx2);
             loadingScreen();
@@ -1033,6 +1164,7 @@ void menu() {
 
 
 int main() {
+    
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 
@@ -1040,6 +1172,8 @@ int main() {
 
     srand(time(0));
     players = loadPlayers();
+    SetConsoleOutputCP(65001);   // UTF-8
+    SetConsoleCP(65001);
     loadingScreen();
     menu();
 
