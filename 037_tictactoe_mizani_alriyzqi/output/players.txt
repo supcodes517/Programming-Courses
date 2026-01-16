@@ -1,15 +1,15 @@
 NAMA  : ARIF
-GAMES : 7
-WINS  : 2
+GAMES : 9
+WINS  : 3
 DRAWS : 2
-LOSS  : 3
-SCORE : 92
+LOSS  : 4
+SCORE : 95
 ---
 NAMA  : Mizani
-GAMES : 8
+GAMES : 9
 WINS  : 5
 DRAWS : 2
-LOSS  : 1
+LOSS  : 2
 SCORE : 85
 ---
 NAMA  : Arya
