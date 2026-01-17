@@ -1,9 +1,12 @@
+//NAMA: NOVALINO DHEZA YONANSYAH
+//NIM: 2500018020
+
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
 using namespace std;
 
-// Fungsi untuk menampilkan board
+
 void displayBoard(char board[3][3]) {
     cout << "\n";
     for (int i = 0; i < 3; i++) {
@@ -18,7 +21,7 @@ void displayBoard(char board[3][3]) {
     cout << "\n";
 }
 
-// Fungsi untuk menampilkan panduan posisi
+
 void displayGuide() {
     cout << "\nPanduan Posisi:\n";
     cout << " 1 | 2 | 3\n";
@@ -28,21 +31,21 @@ void displayGuide() {
     cout << " 7 | 8 | 9\n\n";
 }
 
-// Fungsi untuk mengecek kemenangan
+
 bool checkWin(char board[3][3], char player) {
-    // Cek baris
+   
     for (int i = 0; i < 3; i++) {
         if (board[i][0] == player && board[i][1] == player && board[i][2] == player)
             return true;
     }
     
-    // Cek kolom
+  
     for (int j = 0; j < 3; j++) {
         if (board[0][j] == player && board[1][j] == player && board[2][j] == player)
             return true;
     }
     
-    // Cek diagonal
+    
     if (board[0][0] == player && board[1][1] == player && board[2][2] == player)
         return true;
     if (board[0][2] == player && board[1][1] == player && board[2][0] == player)
@@ -51,7 +54,7 @@ bool checkWin(char board[3][3], char player) {
     return false;
 }
 
-// Fungsi untuk mengecek apakah board penuh (draw)
+
 bool isBoardFull(char board[3][3]) {
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
@@ -62,7 +65,7 @@ bool isBoardFull(char board[3][3]) {
     return true;
 }
 
-// Fungsi untuk mengecek apakah posisi valid
+
 bool isValidMove(char board[3][3], int position) {
     if (position < 1 || position > 9)
         return false;
@@ -73,20 +76,20 @@ bool isValidMove(char board[3][3], int position) {
     return board[row][col] == ' ';
 }
 
-// Fungsi untuk menempatkan tanda pada board
+
 void makeMove(char board[3][3], int position, char player) {
     int row = (position - 1) / 3;
     int col = (position - 1) % 3;
     board[row][col] = player;
 }
 
-// Fungsi untuk komputer memilih move (AI sederhana)
+
 int computerMove(char board[3][3]) {
-    // Cek apakah komputer bisa menang
+
     for (int i = 1; i <= 9; i++) {
         if (isValidMove(board, i)) {
             char tempBoard[3][3];
-            // Copy board
+            
             for (int x = 0; x < 3; x++)
                 for (int y = 0; y < 3; y++)
                     tempBoard[x][y] = board[x][y];
@@ -97,11 +100,11 @@ int computerMove(char board[3][3]) {
         }
     }
     
-    // Cek apakah player bisa menang dan block
+   
     for (int i = 1; i <= 9; i++) {
         if (isValidMove(board, i)) {
             char tempBoard[3][3];
-            // Copy board
+          
             for (int x = 0; x < 3; x++)
                 for (int y = 0; y < 3; y++)
                     tempBoard[x][y] = board[x][y];
@@ -112,18 +115,18 @@ int computerMove(char board[3][3]) {
         }
     }
     
-    // Coba ambil tengah
+  
     if (isValidMove(board, 5))
         return 5;
     
-    // Coba ambil sudut
+  
     int corners[] = {1, 3, 7, 9};
     for (int i = 0; i < 4; i++) {
         if (isValidMove(board, corners[i]))
             return corners[i];
     }
     
-    // Ambil posisi kosong pertama
+    
     for (int i = 1; i <= 9; i++) {
         if (isValidMove(board, i))
             return i;
@@ -132,7 +135,7 @@ int computerMove(char board[3][3]) {
     return -1;
 }
 
-// Fungsi untuk bermain vs Player
+
 void playVsPlayer(char board[3][3]) {
     char currentPlayer = 'X';
     int position;
@@ -162,17 +165,17 @@ void playVsPlayer(char board[3][3]) {
             break;
         }
         
-        // Ganti pemain
+       
         currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
     }
 }
 
-// Fungsi untuk bermain vs Komputer
+
 void playVsComputer(char board[3][3]) {
     int position;
     
     while (true) {
-        // Giliran Player (X)
+        
         displayBoard(board);
         cout << "Giliran Anda (X)\n";
         cout << "Masukkan posisi (1-9): ";
@@ -197,7 +200,6 @@ void playVsComputer(char board[3][3]) {
             break;
         }
         
-        // Giliran Komputer (O)
         cout << "Komputer sedang berpikir...\n";
         int compMove = computerMove(board);
         makeMove(board, compMove, 'O');
@@ -223,7 +225,7 @@ int main() {
     char playAgain;
     
     do {
-        // Inisialisasi board 2D array
+      
         char board[3][3] = {
             {' ', ' ', ' '},
             {' ', ' ', ' '},
