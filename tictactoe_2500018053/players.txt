@@ -1,0 +1,3 @@
+muna 2 0 1 1 1
+ezone 0 0 0 0 0
+Ridwan 2 0 0 2 0
