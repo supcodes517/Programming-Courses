@@ -56,7 +56,10 @@ tictactoe_2500018053/
 └── screenshots/           
     ├── menu.png
     ├── gameplay.png
-    └── leaderboard.png
+    ├── leaderboard.png
+    ├── seri.png
+    ├── menang.png
+    └── player win.png
 ```
 
 **Author:** misuminitt / Muhammad Ridwan Kusumahani
