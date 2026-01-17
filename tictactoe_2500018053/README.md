@@ -2,7 +2,6 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Language-C%2B%2B-blue">
-  <img src="https://img.shields.io/badge/Platform-Console-lightgrey">
   <img src="https://img.shields.io/badge/Status-Completed-success">
 </p>
 
