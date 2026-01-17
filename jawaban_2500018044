@@ -1,0 +1,51 @@
+// ============================================
+// NAMA  : [rachmad hanafi]
+// NIM   :  [2500018044]
+// QUIZ  : [quiz penjumlahan.cpp]
+// TANGGAL: [24/12/2025]
+// ============================================
+
+
+#include <iostream>
+using namespace std;
+
+// Perbaiki fungsi rekursif penjumlahan ini!
+int jumlah(int n) {
+	
+	
+	// KESALAHAN 1: kesalan ada pada n==1 yang seharusnya n<=1,agar dapat dibaca oleh program,jika diinput 0 atau angka negatif.kalau n==1 maka progrram tidak akan membacanya dan akan mengoutputkan "segmentation fault"
+    // SEBELUM    : if (n == 1)
+    // PERBAIKAN  : 
+    if (n <= 1) { //perbaikan pada base case yang tadinya if (n == 1) menjadi if (n<=1)
+        return 1;
+    }
+    
+    // KESALAHAN 2: karena mencari faktorial,operasi yg digunakan seharusnya menggunakan penjumlahan bukan perkalian,karena faktorial itu menjumlhkan.
+    // SEBELUM    : return n * jumlah(n - 1); 
+    // PERBAIKAN  :
+    return n + jumlah(n-1);  //perbaikan pada oprasinya yang sebelumnya perkalian diubah menjadi penjumlahan.
+}
+
+int main() {
+    int angka;
+    cout << "Masukkan angka: ";
+    cin >> angka;
+    
+    
+    // KESALAHAN 3: kesalahan ada pada pemanggilan variabel angka,agar nilai akhir yang di input tetap dioprasikan maka pada peng outputan variabel (angka) yang tadinya (angka -1)tinggal dihapus saja -1 nya menjadi (angka) saja.
+    // SEBELUM    :jumlah(angka - 1)
+    // PERBAIKAN  :
+    cout << " faktorial dari " << angka << " adalah: " << jumlah(angka) << endl; //perbaikan pada variabel yang tadinya << jumlah(angka -1),menjadi (angka)
+    
+    return 0;
+} 
+
+/*
+Quiz 3: Penjumlahan
+
+   kesalahan pertama yaitu ada pada basacase if(n==1),jika memakai n==1,jika pengguna meng inputkan angka 0 atau angka negatif maka yang di outputkan akan "segmentation fault".maka diganti menjadi if (n<=1) agar angka 0 dan negatif tetap terbaca oleh program.
+   
+   keslahan kedua ada pada oprasi yang digunakan.faktorial itu menjumlahkan angka dari awal hingga akkhir missal faktorial 5 berarti 1+2+3+4+5=15.nah tadinya oprasi yang digunakan adalah perkalian,maka diganti dengan penjumlahan agar sesuai dengan aturan faktorial.
+   
+   kesalahan ketiga ada pada pemanggilan variabel (angka),jika pemanggilan angka masih <<jumlah(angka-1),misal pengguna meng inputkan angka 5,maka program yang berjalan menjadi 1+2+3+4=10.padahal seharusnya 5 nya ikut dioprasikan.karena itu pada pemanggilan variabel yang tadinya <<jumlah(angka-1),diubah menjadi <<jumlah(angka)
+*/	
