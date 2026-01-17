@@ -1,0 +1,15 @@
+jehan 23 13 4 6 43
+sopo 18 9 4 5 31
+jarwo 15 8 2 5 26
+budi 25 16 4 5 52
+andi 12 5 2 5 17
+rudi 30 22 3 5 69
+tono 10 3 1 6 10
+agus 19 11 2 6 35
+dika 14 6 2 6 20
+fajar 22 14 3 5 45
+eko 11 4 3 4 15
+rio 17 8 3 6 27
+indra 26 18 3 5 57
+bayu 8 2 2 4 8
+nando 28 20 3 5 63
