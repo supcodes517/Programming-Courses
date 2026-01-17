@@ -1,0 +1,8 @@
+noval
+1 0 0 1 0
+razya
+1 1 0 0 10
+fathir
+1 1 0 0 10
+andi
+1 0 0 1 0
