@@ -1,0 +1,5 @@
+andi 2 2 0 0 6
+razya 2 1 0 1 3
+hanif 2 0 0 2 0
+mizan 2 0 0 2 0
+uyok 2 2 0 0 6
