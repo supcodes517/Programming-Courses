@@ -27,27 +27,33 @@ struct Player {
     int totalLosses = 0;
     int score = 0;
     
-    int getRank() const {
-        if (score >= 100) return 1;      
-        else if (score >= 50) return 2;  
-        else if (score >= 20) return 3;  
-        else return 4;                   
-    }
 };
 
-string getRankLabel(int rank) {
-    switch (rank) {
-        case 1: return "🥇";
-        case 2: return "🥈";
-        case 3: return "🥉";
-        default: return " NONE ";
-    }
+string getRankLabel(int rank){
+    if(rank==1) return "🥇 ";
+    if(rank==2) return "🥈 ";
+    if(rank==3) return "🥉 ";
+    return " - ";
 }
+
 
 
 char board[3][3];
 vector<Player> players;
 int currentPlayerIndex = -1;
+
+int getLeaderboardRank(const Player& p) {
+    vector<Player> temp = players;
+    sort(temp.begin(), temp.end(), [](Player &a, Player &b){
+        return a.score > b.score;
+    });
+
+    for(size_t i=0;i<temp.size();i++){
+        if(temp[i].nama == p.nama)
+            return i+1;
+    }
+    return -1;
+}
 
 void setColor(int color) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
@@ -171,10 +177,10 @@ void loadingScreen() {
                 gotoXY(startX, startY + i);
                 cout << bigWords[k][i];
             }
-            Sleep(120);
+            Sleep(60);
         }
 
-        Sleep(300);
+        Sleep(150);
 
         // ===== FADE OUT =====
         for(int c = 0; c < 4; c++) {
@@ -183,7 +189,7 @@ void loadingScreen() {
                 gotoXY(startX, startY + i);
                 cout << bigWords[k][i];
             }
-            Sleep(120);
+            Sleep(60);
         }
 
         // ===== CLEAR ART AREA (BENAR-BENAR HILANG) =====
@@ -193,7 +199,7 @@ void loadingScreen() {
             cout << string(artWidth, ' ');
         }
 
-        Sleep(250); // jeda sebelum kata berikutnya
+        Sleep(125); // jeda sebelum kata berikutnya
     }
 
     int textW = 22;
@@ -276,18 +282,33 @@ void printBoard() {
 
 void mainLagi() {
     char again;
-cout << "Main lagi? (Y/N): ";
-cin >> again;
-if(toupper(again)!='Y') return;
-
+    cout << "Main lagi? (Y/N): ";
+    cin >> again;
+    if(toupper(again)!='Y') {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return;
+    }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
 vector<Player> loadPlayers() {
     vector<Player> data;
     ifstream file(FILENAME);
 
-    if (!file.is_open())   
+    if (!file.is_open()) {
+        cout << "File player tidak ditemukan. Membuat file baru...\n";
+
+        ofstream newFile(FILENAME);
+        newFile.close();
+
+        Sleep(600);
         return data;
+    }
+
+    cout << "File berhasil ditemukan! Memuat isi file...\n";
+    Sleep(600);
+
+
 
     Player p;
     string line;
@@ -319,6 +340,13 @@ vector<Player> loadPlayers() {
 
 void savePlayers() {
     ofstream file(FILENAME);
+
+    if(!file.is_open()){
+        cout << "❌ Error: Tidak dapat membuka file " << FILENAME << endl;
+        return;  
+
+    }
+
     for (const auto& p : players) {
         file << "NAMA  : " << p.nama << "\n";
         file << "GAMES : " << p.totalGames << "\n";
@@ -328,7 +356,9 @@ void savePlayers() {
         file << "SCORE : " << p.score << "\n";
         file << "---\n";
     }
-        cout << "File Player Tdak Di Temukan!";
+
+    file.close();
+    cout << "✅ Data berhasil disimpan ke " << FILENAME << endl;
 
 }
 
@@ -343,8 +373,8 @@ int findPlayer(const string& name) {
 void showStats(const Player& p) {
     cout << "\n==============================\n";
     cout << "Nama : " << left << setw(12) << p.nama 
-         << " [" << p.getRank() << "]\n";
-    cout << "Rank : " << getRankLabel(p.getRank()) << "\n";
+         << " [" << getLeaderboardRank(p) << "]\n";
+    cout << "Rank : " << getRankLabel(getLeaderboardRank(p)) << endl;
     cout << "==============================\n";
     cout << "Games : " << p.totalGames << endl;
     cout << "Wins  : " << p.totalWins << endl;
@@ -381,16 +411,24 @@ int selectExistingPlayer(const string& prompt, int lockedIndex = -1) {
         return -1;
     }
 
+    // === BUAT LEADERBOARD SORTED ===
+    vector<Player> board = players;
+    sort(board.begin(), board.end(), [](const Player&a,const Player&b){
+        return a.score > b.score;
+    });
+
     while (true) {
         system("cls");
         cout << "\n" << prompt << "\n";
 
-        int wNama = 4;   
-        int wScore = 5;  
-        int wGames = 5;  
+        int wNo = 3;
+        int wRank = 3;   // FIXED supaya emoji tidak rusak
+        int wNama = 4;
+        int wScore = 5;
+        int wGames = 5;
         int wW = 1, wD = 1, wL = 1;
 
-        for (auto& p : players) {
+        for (auto& p : board) {
             wNama  = max(wNama,  (int)p.nama.length());
             wScore = max(wScore, (int)to_string(p.score).length());
             wGames = max(wGames, (int)to_string(p.totalGames).length());
@@ -399,89 +437,86 @@ int selectExistingPlayer(const string& prompt, int lockedIndex = -1) {
             wL     = max(wL,     (int)to_string(p.totalLosses).length());
         }
 
-        
+        auto line = [&](char c){
+            cout << "+-" << string(wNo, c)
+                 << "-+-" << string(wRank, c)
+                 << "-+-" << string(wNama, c)
+                 << "-+-" << string(wScore, c)
+                 << "-+-" << string(wGames, c)
+                 << "-+-" << string(wW, c)
+                 << "-+-" << string(wD, c)
+                 << "-+-" << string(wL, c) << "-+\n";
+        };
 
-        cout << "+------+-" << string(wNama, '-')
-             << "-+-" << string(wScore, '-')
-             << "-+-" << string(wGames, '-')
-             << "-+-" << string(wW, '-')
-             << "-+-" << string(wD, '-')
-             << "-+-" << string(wL, '-') << "-+\n";
+        line('-');
 
-        cout << "|  NO  | Nama"
-             << string(wNama - 4, ' ')
+        cout << "| No"
+             << string(wNo-2,' ')
+             << " | Rk"
+             << string(wRank-2,' ')
+             << " | Nama"
+             << string(wNama-4,' ')
              << " | Score"
-             << string(wScore - 5, ' ')
+             << string(wScore-5,' ')
              << " | Games"
-             << string(wGames - 5, ' ')
+             << string(wGames-5,' ')
              << " | W"
-             << string(wW - 1, ' ')
+             << string(wW-1,' ')
              << " | D"
-             << string(wD - 1, ' ')
+             << string(wD-1,' ')
              << " | L"
-             << string(wL - 1, ' ')
+             << string(wL-1,' ')
              << " |\n";
 
-        cout << "|------|-" << string(wNama, '-')
-             << "-|-" << string(wScore, '-')
-             << "-|-" << string(wGames, '-')
-             << "-|-" << string(wW, '-')
-             << "-|-" << string(wD, '-')
-             << "-|-" << string(wL, '-') << "-|\n";
+        line('=');
 
-CONSOLE_SCREEN_BUFFER_INFO csbi;
-GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+        string open = "\033[09m";
+        string close = "\033[0m";
 
+        for (int i=0;i<board.size();i++) {
+            Player &p = board[i];
 
-        for (int i = 0; i < (int)players.size(); i++) {
-            Player &p = players[i];
+            // cari index asli di vector players
+            int realIndex = -1;
+            for(int j=0;j<players.size();j++)
+                if(players[j].nama == p.nama) realIndex = j;
+
+            if (realIndex == lockedIndex) setColor(8);
+            else setColor(7);
+
             
 
-            if (i == lockedIndex) {
-                setColor(8);
-                cout << "|[X]";
+            if(realIndex == lockedIndex) {
+                cout << open << "| " << left
+                 << setw(wNo)   << i+1 << " | "
+                 << setw(wRank) << getRankLabel(i+1) << " | "
+                 << setw(wNama) << p.nama << " | "
+                 << setw(wScore)<< p.score << " | "
+                 << setw(wGames)<< p.totalGames << " | "
+                 << setw(wW)    << p.totalWins << " | "
+                 << setw(wD)    << p.totalDraws << " | "
+                 << setw(wL)    << p.totalLosses << " |" << close;
+                cout << "  (SUDAH DIPILIH)";
             } else {
-                setColor(7);
-                cout << "|[ ]";
+                cout << "| " << left
+                 << setw(wNo)   << i+1 << " | "
+                 << setw(wRank) << getRankLabel(i+1) << " | "
+                 << setw(wNama) << p.nama << " | "
+                 << setw(wScore)<< p.score << " | "
+                 << setw(wGames)<< p.totalGames << " | "
+                 << setw(wW)    << p.totalWins << " | "
+                 << setw(wD)    << p.totalDraws << " | "
+                 << setw(wL)    << p.totalLosses << " |" ;
+
             }
-        
 
-if (i == lockedIndex) {
-    setColor(8);
-    string open = "\033[09m";
-    string close = "\033[0m";
-    cout << open << left
-     << setw(3) << i + 1 << "| "
-     << setw(wNama)  << p.nama << " | "
-     << setw(wScore) << p.score << " | "
-     << setw(wGames) << p.totalGames << " | "
-     << setw(wW)     << p.totalWins << " | "
-     << setw(wD)     << p.totalDraws << " | "
-     << setw(wL)     << p.totalLosses << " |" << close;
-    cout << " ( SUDAH DIPILIH )";
-    setColor(7);
-} else {
-    cout << left
-     << setw(3) << i + 1 << "| "
-     << setw(wNama)  << p.nama << " | "
-     << setw(wScore) << p.score << " | "
-     << setw(wGames) << p.totalGames << " | "
-     << setw(wW)     << p.totalWins << " | "
-     << setw(wD)     << p.totalDraws << " | "
-     << setw(wL)     << p.totalLosses << " |" ;
-}
-
-cout << "\n";
+            cout << "\n";
         }
 
-        cout << "+------+-" << string(wNama, '-')
-             << "-+-" << string(wScore, '-')
-             << "-+-" << string(wGames, '-')
-             << "-+-" << string(wW, '-')
-             << "-+-" << string(wD, '-')
-             << "-+-" << string(wL, '-') << "-+\n";
+        setColor(7);
+        line('-');
 
-        cout << "\nPilih player (1-" << players.size() << ") atau 0 untuk kembali: ";
+        cout << "\nPilih player (1-" << board.size() << ") atau 0 untuk kembali: ";
         int pick;
         cin >> pick;
 
@@ -493,24 +528,22 @@ cout << "\n";
             continue;
         }
 
-        if (pick == 0)
-            return -1;
+        if (pick == 0) return -1;
 
-        if (pick < 1 || pick > (int)players.size()) {
+        if (pick < 1 || pick > board.size()) {
             cout << "Pilihan tidak valid!\n";
             pause();
             continue;
         }
 
-        int idx = pick - 1;
-
-        if (idx == lockedIndex) {
-            cout << "🎮 Player ini sudah dipilih! Pilih player lain.\n";
-            pause();
-            continue;
+        // kembalikan index asli player
+        string nama = board[pick-1].nama;
+        for(int i=0;i<players.size();i++){
+            if(players[i].nama == nama)
+                return i;
         }
 
-        return idx;
+        return -1;
     }
 }
 
@@ -589,7 +622,7 @@ return;
             cout << "          HASIL PERTANDINGAN          \n";
             cout << "======================================\n";
             cout << "Hasil : MENANG" << endl;
-            cout << "Score Yang Di Dapfatkan : +3 Poin"<< endl;
+            cout << "Score Yang Di Dapatkan : +3 Poin"<< endl;
             players[idx2].totalGames++;
             players[idx2].totalWins++;
             players[idx2].score += 3;
@@ -850,7 +883,9 @@ void showResult(int idx, string hasil, int poin) {
     else if (hasil == "KALAH") players[idx].totalLosses++;
     else players[idx].totalDraws++;
     players[idx].score += poin;
+    cout << "\n\n";
     savePlayers();
+    cout << "\n\n";
     showStats(players[idx]);
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -1031,6 +1066,11 @@ void menu() {
         cout << "======================================\n";
         cout << "             TIC TAC TOE              \n";
         cout << "======================================\n";
+        
+        cout << "\n\n";
+        players = loadPlayers();
+        cout << "\n\n";
+    
         cout << "1. Player Baru\n";
         cout << "2. Pilih Player Yang Sudah Ada\n";
         cout << "3. Leaderboard\n";
@@ -1168,13 +1208,11 @@ int main() {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 
-    
-
-    srand(time(0));
-    players = loadPlayers();
     SetConsoleOutputCP(65001);   // UTF-8
     SetConsoleCP(65001);
     loadingScreen();
+
+    srand(time(0));
     menu();
 
     return 0;
