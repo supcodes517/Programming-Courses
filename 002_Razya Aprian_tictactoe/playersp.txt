@@ -1,0 +1,28 @@
+NAMA   : hakii
+GAMES  : 6
+WINS   : 1
+DRAWS  : 3
+LOSSES : 2
+SCORE  : 6
+  
+NAMA   : imjan
+GAMES  : 2
+WINS   : 1
+DRAWS  : 0
+LOSSES : 1
+SCORE  : 3
+  
+NAMA   : mizan
+GAMES  : 1
+WINS   : 0
+DRAWS  : 1
+LOSSES : 0
+SCORE  : 1
+  
+NAMA   : razya
+GAMES  : 1
+WINS   : 0
+DRAWS  : 1
+LOSSES : 0
+SCORE  : 1
+  
