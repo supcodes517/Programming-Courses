@@ -1,264 +1,424 @@
-
 #include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
 #include <cstdlib>
 #include <ctime>
+#include <iomanip>
+
 using namespace std;
 
-// Fungsi untuk menampilkan board
-void displayBoard(char board[3][3]) {
-    cout << "\n";
-    for (int i = 0; i < 3; i++) {
-        cout << " ";
-        for (int j = 0; j < 3; j++) {
-            cout << " " << board[i][j];
-            if (j < 2) cout << " |";
+struct Player
+{
+    string nama;
+    int totalGames;
+    int totalWins;
+    int totalDraws;
+    int totalLosses;
+    int score;
+};
+
+vector<Player> players;
+Player *currentPlayer = NULL;
+const string FILE_NAME = "players.txt";
+
+void pause()
+{
+    cout << "\nTekan ENTER buat lanjut...";
+    cin.ignore(1000, '\n');
+    cin.get();
+}
+
+void header()
+{
+    cout << "\n====================================\n";
+    cout << "        TIC TAC TOE GAME\n";
+    cout << "====================================\n\n";
+}
+
+void loadPlayers()
+{
+    ifstream file(FILE_NAME.c_str());
+    if (!file)
+        return;
+
+    Player p;
+    while (file >> p.nama >> p.totalGames >> p.totalWins >> p.totalDraws >> p.totalLosses >> p.score)
+    {
+        players.push_back(p);
+    }
+    file.close();
+}
+
+void savePlayers()
+{
+    ofstream file(FILE_NAME.c_str());
+    for (size_t i = 0; i < players.size(); i++)
+    {
+        file << players[i].nama << " "
+             << players[i].totalGames << " "
+             << players[i].totalWins << " "
+             << players[i].totalDraws << " "
+             << players[i].totalLosses << " "
+             << players[i].score << endl;
+    }
+    file.close();
+}
+
+void showStats(Player &p)
+{
+    cout << "\nStatistik " << p.nama << ":\n";
+    cout << "-Total Game : " << p.totalGames << endl;
+    cout << "-Win        : " << p.totalWins << endl;
+    cout << "-Draw       : " << p.totalDraws << endl;
+    cout << "-Lose       : " << p.totalLosses << endl;
+    cout << "Score Total : " << p.score << endl;
+}
+
+void newPlayer()
+{
+    cout << "\n=== PLAYER BARU ===\n";
+    cout << "Masukin nama kamu: ";
+
+    Player p;
+    cin >> p.nama;
+    p.totalGames = p.totalWins = p.totalDraws = p.totalLosses = p.score = 0;
+
+    players.push_back(p);
+    currentPlayer = &players.back();
+
+    cout << "\nHOREEE! Player berhasil dibuat \n";
+    cout << "Selamat datang, " << p.nama << "!\n";
+    showStats(*currentPlayer);
+    cin.ignore();
+    pause();
+}
+
+void choosePlayer()
+{
+    header();
+    if (players.empty())
+    {
+        cout << "Belum ada player nih, bikin dulu ya.\n";
+        pause();
+        return;
+    }
+
+    cout << "=== DAFTAR PLAYER ===\n";
+    cout << left << setw(4) << "No"
+         << "| " << setw(15) << "Nama"
+         << "| " << setw(6) << "Skor"
+         << "| " << setw(6) << "Main"
+         << "| " << setw(3) << "W"
+         << "| " << setw(3) << "D"
+         << "| " << setw(3) << "L" << endl;
+    cout << string(55, '-') << endl;
+
+    for (size_t i = 0; i < players.size(); i++)
+    {
+        cout << left << setw(4) << i + 1
+             << "| " << setw(15) << players[i].nama
+             << "| " << setw(6) << players[i].score
+             << "| " << setw(6) << players[i].totalGames
+             << "| " << setw(3) << players[i].totalWins
+             << "| " << setw(3) << players[i].totalDraws
+             << "| " << setw(3) << players[i].totalLosses << endl;
+    }
+
+    cout << "\nPilih nomor player (0 buat balik): ";
+    int c;
+    cin >> c;
+    if (c < 1 || c > (int)players.size())
+    {
+        currentPlayer = NULL;
+        return;
+    }
+
+    currentPlayer = &players[c - 1];
+    cout << "\nWelcome back, " << currentPlayer->nama << "!\n";
+    cin.ignore();
+    pause();
+}
+
+void leaderboard()
+{
+    header();
+    if (players.empty())
+    {
+        cout << "Leaderboard masih kosong\n";
+        pause();
+        return;
+    }
+
+    vector<Player> temp = players;
+    for (size_t i = 0; i < temp.size(); i++)
+    {
+        for (size_t j = i + 1; j < temp.size(); j++)
+        {
+            if (temp[j].score > temp[i].score)
+                swap(temp[i], temp[j]);
         }
-        cout << "\n";
-        if (i < 2) cout << " ---|---|---\n";
     }
-    cout << "\n";
+
+    cout << "============================================\n";
+    cout << "              LEADERBOARD\n";
+    cout << "============================================\n";
+    cout << left << setw(6) << "Rank"
+         << "| " << setw(15) << "Nama"
+         << "| " << setw(6) << "Skor"
+         << "| " << setw(6) << "Main"
+         << "| W | D | L\n";
+    cout << string(55, '-') << endl;
+
+    for (size_t i = 0; i < temp.size() && i < 10; i++)
+    {
+        cout << left << setw(6) << i + 1
+             << "| " << setw(15) << temp[i].nama
+             << "| " << setw(6) << temp[i].score
+             << "| " << setw(6) << temp[i].totalGames
+             << "| " << setw(2) << temp[i].totalWins
+             << " | " << setw(2) << temp[i].totalDraws
+             << " | " << setw(2) << temp[i].totalLosses << endl;
+    }
+    pause();
 }
 
-// Fungsi untuk menampilkan panduan posisi
-void displayGuide() {
-    cout << "\nPanduan Posisi:\n";
-    cout << " 1 | 2 | 3\n";
-    cout << "---|---|---\n";
-    cout << " 4 | 5 | 6\n";
-    cout << "---|---|---\n";
-    cout << " 7 | 8 | 9\n\n";
-}
-
-// Fungsi untuk mengecek kemenangan
-bool checkWin(char board[3][3], char player) {
-    // Cek baris
-    for (int i = 0; i < 3; i++) {
-        if (board[i][0] == player && board[i][1] == player && board[i][2] == player)
+bool checkWin(const vector<char> &b, char m)
+{
+    int w[8][3] = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}};
+    for (int i = 0; i < 8; i++)
+        if (b[w[i][0]] == m && b[w[i][1]] == m && b[w[i][2]] == m)
             return true;
-    }
-    
-    // Cek kolom
-    for (int j = 0; j < 3; j++) {
-        if (board[0][j] == player && board[1][j] == player && board[2][j] == player)
-            return true;
-    }
-    
-    // Cek diagonal
-    if (board[0][0] == player && board[1][1] == player && board[2][2] == player)
-        return true;
-    if (board[0][2] == player && board[1][1] == player && board[2][0] == player)
-        return true;
-    
     return false;
 }
 
-// Fungsi untuk mengecek apakah board penuh (draw)
-bool isBoardFull(char board[3][3]) {
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            if (board[i][j] == ' ')
-                return false;
-        }
-    }
+bool isboardFull(const vector<char> &b)
+{
+    for (int i = 0; i < 9; i++)
+        if (b[i] == ' ')
+            return false;
     return true;
 }
 
-// Fungsi untuk mengecek apakah posisi valid
-bool isValidMove(char board[3][3], int position) {
-    if (position < 1 || position > 9)
-        return false;
-    
-    int row = (position - 1) / 3;
-    int col = (position - 1) % 3;
-    
-    return board[row][col] == ' ';
+void displayGuide()
+{
+    cout << "Petunjuk posisi:\n";
+    cout << " 1 | 2 | 3\n---|---|---\n";
+    cout << " 4 | 5 | 6\n---|---|---\n";
+    cout << " 7 | 8 | 9\n\n";
 }
 
-// Fungsi untuk menempatkan tanda pada board
-void makeMove(char board[3][3], int position, char player) {
-    int row = (position - 1) / 3;
-    int col = (position - 1) % 3;
-    board[row][col] = player;
+void displayBoard(const vector<char> &b)
+{
+    cout << " " << b[0] << " | " << b[1] << " | " << b[2] << "\n";
+    cout << "---|---|---\n";
+    cout << " " << b[3] << " | " << b[4] << " | " << b[5] << "\n";
+    cout << "---|---|---\n";
+    cout << " " << b[6] << " | " << b[7] << " | " << b[8] << "\n\n";
 }
 
-// Fungsi untuk komputer memilih move (AI sederhana)
-int computerMove(char board[3][3]) {
-    // Cek apakah komputer bisa menang
-    for (int i = 1; i <= 9; i++) {
-        if (isValidMove(board, i)) {
-            char tempBoard[3][3];
-            // Copy board
-            for (int x = 0; x < 3; x++)
-                for (int y = 0; y < 3; y++)
-                    tempBoard[x][y] = board[x][y];
-            
-            makeMove(tempBoard, i, 'O');
-            if (checkWin(tempBoard, 'O'))
-                return i;
-        }
-    }
-    
-    // Cek apakah player bisa menang dan block
-    for (int i = 1; i <= 9; i++) {
-        if (isValidMove(board, i)) {
-            char tempBoard[3][3];
-            // Copy board
-            for (int x = 0; x < 3; x++)
-                for (int y = 0; y < 3; y++)
-                    tempBoard[x][y] = board[x][y];
-            
-            makeMove(tempBoard, i, 'X');
-            if (checkWin(tempBoard, 'X'))
-                return i;
-        }
-    }
-    
-    // Coba ambil tengah
-    if (isValidMove(board, 5))
-        return 5;
-    
-    // Coba ambil sudut
-    int corners[] = {1, 3, 7, 9};
-    for (int i = 0; i < 4; i++) {
-        if (isValidMove(board, corners[i]))
-            return corners[i];
-    }
-    
-    // Ambil posisi kosong pertama
-    for (int i = 1; i <= 9; i++) {
-        if (isValidMove(board, i))
-            return i;
-    }
-    
-    return -1;
+void cetakHasil(string hasil, string poin)
+{
+    cout << "====================================\n";
+    cout << "         HASIL AKHIR PERMAINAN      \n";
+    cout << "====================================\n";
+    cout << "Hasil game : " << hasil << endl;
+    cout << "Bonus skor : " << poin << endl;
+    showStats(*currentPlayer);
+    cout << "\nData otomatis disimpan \n";
 }
 
-// Fungsi untuk bermain vs Player
-void playVsPlayer(char board[3][3]) {
-    char currentPlayer = 'X';
-    int position;
-    
-    while (true) {
-        displayBoard(board);
-        cout << "Giliran Player " << currentPlayer << "\n";
-        cout << "Masukkan posisi (1-9): ";
-        cin >> position;
-        
-        if (!isValidMove(board, position)) {
-            cout << "Posisi tidak valid! Coba lagi.\n";
+void playerVsComputer()
+{
+    vector<char> board(9, ' ');
+    header();
+    displayGuide();
+    displayBoard(board);
+
+    string res = "", pts = "";
+
+    while (true)
+    {
+        int pos;
+        cout << "Giliran kamu (X)\nPilih posisi (1-9): ";
+        cin >> pos;
+        if (pos < 1 || pos > 9 || board[pos - 1] != ' ')
             continue;
-        }
-        
-        makeMove(board, position, currentPlayer);
-        
-        if (checkWin(board, currentPlayer)) {
-            displayBoard(board);
-            cout << "🎉 Player " << currentPlayer << " MENANG! 🎉\n";
-            break;
-        }
-        
-        if (isBoardFull(board)) {
-            displayBoard(board);
-            cout << "SERI! Tidak ada yang menang.\n";
-            break;
-        }
-        
-        // Ganti pemain
-        currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
-    }
-}
 
-// Fungsi untuk bermain vs Komputer
-void playVsComputer(char board[3][3]) {
-    int position;
-    
-    while (true) {
-        // Giliran Player (X)
+        board[pos - 1] = 'X';
         displayBoard(board);
-        cout << "Giliran Anda (X)\n";
-        cout << "Masukkan posisi (1-9): ";
-        cin >> position;
-        
-        if (!isValidMove(board, position)) {
-            cout << "Posisi tidak valid! Coba lagi.\n";
-            continue;
-        }
-        
-        makeMove(board, position, 'X');
-        
-        if (checkWin(board, 'X')) {
-            displayBoard(board);
-            cout << "🎉 ANDA MENANG! 🎉\n";
+
+        if (checkWin(board, 'X'))
+        {
+            cout << "Mantap! Kamu menang \n";
+            currentPlayer->totalWins++;
+            currentPlayer->score += 3;
+            res = "MENANG";
+            pts = "+3 poin";
             break;
         }
-        
-        if (isBoardFull(board)) {
-            displayBoard(board);
-            cout << "SERI! Tidak ada yang menang.\n";
+
+        if (isboardFull(board))
+        {
+            cout << "Seri Dong Kita \n";
+            currentPlayer->totalDraws++;
+            currentPlayer->score += 1;
+            res = "SERI";
+            pts = "+1 poin";
             break;
         }
-        
-        // Giliran Komputer (O)
-        cout << "Komputer sedang berpikir...\n";
-        int compMove = computerMove(board);
-        makeMove(board, compMove, 'O');
-        cout << "Komputer memilih posisi: " << compMove << "\n";
-        
-        if (checkWin(board, 'O')) {
-            displayBoard(board);
-            cout << "💻 KOMPUTER MENANG! 💻\n";
-            break;
-        }
-        
-        if (isBoardFull(board)) {
-            displayBoard(board);
-            cout << "SERI! Tidak ada yang menang.\n";
+
+        cout << "Komputer mikir dulu...\n";
+        int c;
+        do
+        {
+            c = rand() % 9;
+        } while (board[c] != ' ');
+        board[c] = 'O';
+        cout << "Komputer pilih posisi: " << c + 1 << endl;
+        displayBoard(board);
+
+        if (checkWin(board, 'O'))
+        {
+            cout << " Yah Komputer menang \n";
+            currentPlayer->totalLosses++;
+            res = "KALAH";
+            pts = "+0 poin";
             break;
         }
     }
+    currentPlayer->totalGames++;
+    savePlayers();
+    cetakHasil(res, pts);
 }
 
-int main() {
+void playerVsPlayer()
+{
+    vector<char> board(9, ' ');
+    char current = 'X';
+    header();
+    displayGuide();
+    displayBoard(board);
+
+    string res = "", pts = "";
+
+    while (true)
+    {
+        int pos;
+        cout << "Giliran Player " << current << "\nPilih posisi (1-9): ";
+        cin >> pos;
+        if (pos < 1 || pos > 9 || board[pos - 1] != ' ')
+            continue;
+
+        board[pos - 1] = current;
+        displayBoard(board);
+
+        if (checkWin(board, current))
+        {
+            cout << "Player " << current << " menang!\n";
+            if (current == 'X')
+            {
+                currentPlayer->totalWins++;
+                currentPlayer->score += 3;
+                res = "MENANG";
+                pts = "+3 poin";
+            }
+            else
+            {
+                currentPlayer->totalLosses++;
+                res = "KALAH";
+                pts = "+0 poin";
+            }
+            break;
+        }
+
+        if (isboardFull(board))
+        {
+            cout << "Permainan berakhir seri \n";
+            currentPlayer->totalDraws++;
+            currentPlayer->score += 1;
+            res = "SERI";
+            pts = "+1 poin";
+            break;
+        }
+        current = (current == 'X') ? 'O' : 'X';
+    }
+    currentPlayer->totalGames++;
+    savePlayers();
+    cetakHasil(res, pts);
+}
+
+void pilihModeGame()
+{
+    char ulang;
+    do
+    {
+        system("cls");
+        header();
+        int mode;
+        cout << "Hai, " << currentPlayer->nama << " ??\n";
+        cout << "Pilih mode main:\n";
+        cout << "1. Vs Player\n";
+        cout << "2. Vs Computer\n";
+        cout << "Pilihan: ";
+        cin >> mode;
+
+        if (mode == 1)
+            playerVsPlayer();
+        else if (mode == 2)
+            playerVsComputer();
+
+        cout << "\nMain lagi nggak? (y/n): ";
+        cin >> ulang;
+    } while (ulang == 'y' || ulang == 'Y');
+}
+
+int main()
+{
     srand(time(0));
-    
-    char playAgain;
-    
-    do {
-        // Inisialisasi board 2D array
-        char board[3][3] = {
-            {' ', ' ', ' '},
-            {' ', ' ', ' '},
-            {' ', ' ', ' '}
-        };
-        
-        cout << "\n================================\n";
-        cout << "     TIC TAC TOE GAME\n";
-        cout << "================================\n";
-        
-        displayGuide();
-        
-        int choice;
-        cout << "Pilih mode permainan:\n";
-        cout << "1. VS Player\n";
-        cout << "2. VS Komputer\n";
-        cout << "Pilihan Anda: ";
-        cin >> choice;
-        
-        if (choice == 1) {
-            playVsPlayer(board);
-        } else if (choice == 2) {
-            playVsComputer(board);
-        } else {
-            cout << "Pilihan tidak valid!\n";
+    loadPlayers();
+
+    while (true)
+    {
+        system("cls");
+        header();
+        cout << "=== MENU UTAMA ===\n";
+        cout << "1. Buat player baru\n";
+        cout << "2. Pilih player\n";
+        cout << "3. Lihat leaderboard\n";
+        cout << "4. Keluar\n\n";
+        cout << "Pilihan kamu: ";
+
+        int m;
+        if (!(cin >> m))
+        {
+            cin.clear();
+            cin.ignore(1000, '\n');
             continue;
         }
-        
-        cout << "\nMain lagi? (y/n): ";
-        cin >> playAgain;
-        
-    } while (playAgain == 'y' || playAgain == 'Y');
-    
-    cout << "\nTerima kasih telah bermain!\n";
-    
+        cin.ignore();
+
+        if (m == 1)
+        {
+            newPlayer();
+            if (currentPlayer)
+                pilihModeGame();
+        }
+        else if (m == 2)
+        {
+            choosePlayer();
+            if (currentPlayer)
+                pilihModeGame();
+        }
+        else if (m == 3)
+        {
+            leaderboard();
+        }
+        else if (m == 4)
+        {
+            cout << "\nYEAYY! Makasih udah main \n";
+            break;
+        }
+    }
     return 0;
 }
