@@ -1,0 +1,10 @@
+Budi 16 11 3 2 36
+Ani 12 8 1 3 25
+Citra 9 5 2 2 17
+Doni 8 4 3 1 15
+Eka 7 3 3 1 12
+Fajar 6 3 1 2 10
+Gita 5 2 2 1 8
+Hendra 4 2 1 1 7
+Indah 4 2 0 2 6
+Joko 3 1 1 1 4
