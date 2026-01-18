@@ -1,0 +1,5 @@
+Uyok 1 1 0 0 3
+Fathir 1 1 0 0 3
+Alek 3 2 0 1 6
+Ujang 1 0 1 0 1
+Novak 1 0 1 0 1
